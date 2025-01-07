@@ -42,11 +42,11 @@ const Index = () => {
       {/* Background texture overlay */}
       <div 
         className="absolute inset-0 bg-cover bg-center opacity-10"
-        style={{ backgroundImage: 'url("/lovable-uploads/046f160c-fafc-4903-917b-f923013238c4.png")' }}
+        style={{ backgroundImage: 'url("/lovable-uploads/a27874b1-e959-43d2-a635-06b486deb91d.png")' }}
       />
       
       <div className="relative container mx-auto px-4 py-8">
-        {/* Header Section with Enhanced Logo */}
+        {/* Header Section with Enhanced Logo and Photo */}
         <header className="mb-16">
           <div className="flex justify-between items-center mb-8">
             <img
@@ -56,13 +56,17 @@ const Index = () => {
             />
           </div>
           
-          {/* Main header image */}
+          {/* Main header image with circular frame */}
           <div className="text-center">
-            <img
-              src="https://images.unsplash.com/photo-1560750588-73207b1ef5b8?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80"
-              alt="Cosmetology Services"
-              className="w-full h-[300px] md:h-[400px] object-cover rounded-lg mb-6"
-            />
+            <div className="relative inline-block">
+              <div className="w-[300px] h-[300px] md:w-[400px] md:h-[400px] rounded-full overflow-hidden border-4 border-[#004d40] shadow-[0_0_30px_rgba(0,77,64,0.3)] mx-auto">
+                <img
+                  src="https://images.unsplash.com/photo-1560750588-73207b1ef5b8?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80"
+                  alt="Cosmetology Services"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </div>
             <h1 className="text-xl md:text-2xl font-light mt-4">
               Косметолог с медицинским образованием
             </h1>
