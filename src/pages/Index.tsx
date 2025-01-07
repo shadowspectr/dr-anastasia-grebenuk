@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
-import { Telegram } from "lucide-react";
+import { MessageCircle } from "lucide-react";
 
 const services = [
   { name: "Контурная пластика губ", price: "9,000" },
@@ -63,7 +63,7 @@ const Index = () => {
               rel="noopener noreferrer"
               className="text-[#D946EF] hover:text-[#D946EF]/90 flex items-center gap-1"
             >
-              Telegram <Telegram className="h-5 w-5" />
+              Telegram <MessageCircle className="h-5 w-5" />
             </a>
           </div>
         </section>
