@@ -46,14 +46,13 @@ const Index = () => {
       />
       
       <div className="relative container mx-auto px-4 py-8">
-        {/* Header Section */}
+        {/* Header Section with Enhanced Logo */}
         <header className="mb-16">
-          {/* Logo in top-left corner */}
           <div className="flex justify-between items-center mb-8">
             <img
               src="/lovable-uploads/cd4553b0-6644-40cd-b20c-17dfe7481cc9.png"
               alt="Anastasia Grebenuk Cosmetology"
-              className="w-[150px] md:w-[200px]"
+              className="w-[200px] md:w-[250px] transition-transform hover:scale-105"
             />
           </div>
           
@@ -70,7 +69,7 @@ const Index = () => {
           </div>
         </header>
 
-        {/* Services Section */}
+        {/* Services Section with Updated Colors */}
         <section className="max-w-2xl mx-auto mb-16 bg-white/5 backdrop-blur-sm rounded-lg p-6">
           <Table>
             <TableBody>
@@ -84,7 +83,7 @@ const Index = () => {
           </Table>
         </section>
 
-        {/* Gallery Section */}
+        {/* Gallery Section with Enhanced Mobile Navigation */}
         <section className="max-w-4xl mx-auto mb-16">
           <h2 className="text-2xl font-semibold text-center mb-8">Галерея работ</h2>
           <div className="relative">
@@ -119,11 +118,12 @@ const Index = () => {
                   </CarouselItem>
                 ))}
               </CarouselContent>
-              <CarouselPrevious className="md:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-12" />
-              <CarouselNext className="md:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-12" />
+              <CarouselPrevious className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-12 bg-[#00332b] hover:bg-[#004d40] border-none text-white" />
+              <CarouselNext className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-12 bg-[#00332b] hover:bg-[#004d40] border-none text-white" />
             </Carousel>
             <div className="text-center mt-4 text-white/60">
-              <p>Используйте стрелки для просмотра всех работ</p>
+              <p className="md:hidden mb-2">Проведите пальцем для просмотра всех работ</p>
+              <p className="hidden md:block mb-2">Используйте стрелки для просмотра всех работ</p>
               <div className="flex justify-center gap-2 mt-2">
                 {galleryItems.map((_, index) => (
                   <div
@@ -136,37 +136,43 @@ const Index = () => {
           </div>
         </section>
 
-        {/* CTA Section */}
+        {/* CTA Section with Updated Colors and Link */}
         <section className="text-center mb-16">
-          <Button 
-            size="lg"
-            className="bg-[#D946EF] hover:bg-[#D946EF]/90 text-white px-12 py-6 text-xl rounded-full mb-4"
+          <a 
+            href="https://web.telegram.org/k/#@dr_anastasia_grebenuk"
+            target="_blank"
+            rel="noopener noreferrer"
           >
-            Записаться
-          </Button>
+            <Button 
+              size="lg"
+              className="bg-[#00332b] hover:bg-[#004d40] text-white px-12 py-6 text-xl rounded-full mb-4 border border-white/20"
+            >
+              Записаться
+            </Button>
+          </a>
           <div className="flex items-center justify-center gap-2 text-lg">
             <span>Записывайтесь через</span>
             <a 
-              href="https://t.me/your_telegram_username" 
+              href="https://web.telegram.org/k/#@dr_anastasia_grebenuk"
               target="_blank" 
               rel="noopener noreferrer"
-              className="text-[#D946EF] hover:text-[#D946EF]/90 flex items-center gap-1"
+              className="text-[#4CAF50] hover:text-[#45a049] flex items-center gap-1"
             >
               Telegram <MessageCircle className="h-5 w-5" />
             </a>
           </div>
         </section>
 
-        {/* Footer */}
+        {/* Footer with Updated Colors */}
         <footer className="text-center text-sm text-white/60">
           <div className="mb-4">
             <p>© 2024 Anastasia Grebenuk Cosmetology</p>
             <p>Все права защищены</p>
           </div>
           <div className="flex justify-center gap-4">
-            <a href="#" className="hover:text-white">Instagram</a>
-            <a href="#" className="hover:text-white">WhatsApp</a>
-            <a href="#" className="hover:text-white">Telegram</a>
+            <a href="#" className="hover:text-[#4CAF50] transition-colors">Instagram</a>
+            <a href="#" className="hover:text-[#4CAF50] transition-colors">WhatsApp</a>
+            <a href="#" className="hover:text-[#4CAF50] transition-colors">Telegram</a>
           </div>
         </footer>
       </div>
