@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Upload } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export const LogoSection = () => {
   const { toast } = useToast();
@@ -34,7 +34,7 @@ export const LogoSection = () => {
   };
 
   // Load saved logo on component mount
-  useState(() => {
+  useEffect(() => {
     const savedLogo = localStorage.getItem('adminLogo');
     if (savedLogo) {
       setLogo(savedLogo);
