@@ -3,20 +3,24 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Upload } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
 
 export const MainPhotoSection = () => {
   const { toast } = useToast();
+  const [mainPhoto, setMainPhoto] = useState("/lovable-uploads/3e533f6e-3c39-4db5-8fc0-7afaa4aeba30.png");
 
   const handlePhotoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    const formData = new FormData();
-    formData.append('file', file);
-
     try {
+      // Create a temporary URL for the uploaded file
+      const imageUrl = URL.createObjectURL(file);
+      setMainPhoto(imageUrl);
+      
       // Here you would typically make an API call to upload the file
       console.log('Uploading main photo:', file);
+      
       toast({
         title: "Фото загружено",
         description: "Новое главное фото успешно загружено",
@@ -36,7 +40,7 @@ export const MainPhotoSection = () => {
         <div className="space-y-4">
           <h2 className="text-xl font-semibold mb-4">Главное фото (под логотипом)</h2>
           <img
-            src="/lovable-uploads/046f160c-fafc-4903-917b-f923013238c4.png"
+            src={mainPhoto}
             alt="Current Main Photo"
             className="max-w-[400px] rounded-lg mb-4"
           />

@@ -64,8 +64,18 @@ export const GallerySection = () => {
     if (!file) return;
 
     try {
+      // Create a temporary URL for the uploaded file
+      const imageUrl = URL.createObjectURL(file);
+      
+      setGalleryItems(galleryItems.map(item =>
+        item.id === itemId 
+          ? { ...item, [type === 'before' ? 'beforeImage' : 'afterImage']: imageUrl }
+          : item
+      ));
+
       // Here you would typically make an API call to upload the file
       console.log(`Uploading ${type} image for item ${itemId}:`, file);
+      
       toast({
         title: "Изображение загружено",
         description: `${type === 'before' ? 'До' : 'После'} изображение успешно загружено`,
@@ -114,6 +124,13 @@ export const GallerySection = () => {
                   <div>
                     <Label>Фото "До"</Label>
                     <div className="mt-2">
+                      {item.beforeImage && (
+                        <img
+                          src={item.beforeImage}
+                          alt="Before"
+                          className="w-full h-48 object-cover rounded-lg mb-2"
+                        />
+                      )}
                       <input
                         type="file"
                         id={`before-${item.id}`}
@@ -131,6 +148,13 @@ export const GallerySection = () => {
                   <div>
                     <Label>Фото "После"</Label>
                     <div className="mt-2">
+                      {item.afterImage && (
+                        <img
+                          src={item.afterImage}
+                          alt="After"
+                          className="w-full h-48 object-cover rounded-lg mb-2"
+                        />
+                      )}
                       <input
                         type="file"
                         id={`after-${item.id}`}

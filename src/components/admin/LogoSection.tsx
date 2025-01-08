@@ -3,20 +3,24 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Upload } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
 
 export const LogoSection = () => {
   const { toast } = useToast();
+  const [logo, setLogo] = useState("/lovable-uploads/cd4553b0-6644-40cd-b20c-17dfe7481cc9.png");
 
   const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    const formData = new FormData();
-    formData.append('file', file);
-
     try {
+      // Create a temporary URL for the uploaded file
+      const imageUrl = URL.createObjectURL(file);
+      setLogo(imageUrl);
+      
       // Here you would typically make an API call to upload the file
       console.log('Uploading logo:', file);
+      
       toast({
         title: "Логотип загружен",
         description: "Новый логотип успешно загружен",
@@ -36,7 +40,7 @@ export const LogoSection = () => {
         <div className="space-y-4">
           <h2 className="text-xl font-semibold mb-4">Текущий логотип</h2>
           <img
-            src="/lovable-uploads/cd4553b0-6644-40cd-b20c-17dfe7481cc9.png"
+            src={logo}
             alt="Current Logo"
             className="max-w-[200px] mb-4"
           />
