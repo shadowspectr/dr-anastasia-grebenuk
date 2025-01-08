@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export const FooterSection = () => {
   const { toast } = useToast();
@@ -15,13 +15,20 @@ export const FooterSection = () => {
   });
 
   const handleFooterSave = () => {
-    // Here you would typically make an API call to save the footer data
-    console.log('Saving footer data:', footerData);
+    localStorage.setItem('adminFooterData', JSON.stringify(footerData));
     toast({
       title: "Сохранено",
       description: "Данные футера успешно обновлены",
     });
   };
+
+  // Load saved footer data on component mount
+  useEffect(() => {
+    const savedFooterData = localStorage.getItem('adminFooterData');
+    if (savedFooterData) {
+      setFooterData(JSON.parse(savedFooterData));
+    }
+  }, []);
 
   return (
     <Card className="bg-white/5 border-none">

@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Upload } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export const MainPhotoSection = () => {
   const { toast } = useToast();
@@ -14,12 +14,11 @@ export const MainPhotoSection = () => {
     if (!file) return;
 
     try {
-      // Create a temporary URL for the uploaded file
       const imageUrl = URL.createObjectURL(file);
       setMainPhoto(imageUrl);
       
-      // Here you would typically make an API call to upload the file
-      console.log('Uploading main photo:', file);
+      // Save to localStorage for persistence
+      localStorage.setItem('adminMainPhoto', imageUrl);
       
       toast({
         title: "Фото загружено",
@@ -33,6 +32,14 @@ export const MainPhotoSection = () => {
       });
     }
   };
+
+  // Load saved photo on component mount
+  useEffect(() => {
+    const savedPhoto = localStorage.getItem('adminMainPhoto');
+    if (savedPhoto) {
+      setMainPhoto(savedPhoto);
+    }
+  }, []);
 
   return (
     <Card className="bg-white/5 border-none">

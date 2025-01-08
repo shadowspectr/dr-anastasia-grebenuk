@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Plus, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface Service {
   id: number;
@@ -29,11 +29,15 @@ export const ServicesSection = () => {
       name: "",
       price: "",
     };
-    setServices([...services, newService]);
+    const updatedServices = [...services, newService];
+    setServices(updatedServices);
+    localStorage.setItem('adminServices', JSON.stringify(updatedServices));
   };
 
   const handleServiceDelete = (id: number) => {
-    setServices(services.filter(service => service.id !== id));
+    const updatedServices = services.filter(service => service.id !== id);
+    setServices(updatedServices);
+    localStorage.setItem('adminServices', JSON.stringify(updatedServices));
     toast({
       title: "Услуга удалена",
       description: "Услуга была успешно удалена из списка",
@@ -41,16 +45,20 @@ export const ServicesSection = () => {
   };
 
   const handleServiceUpdate = (id: number, field: keyof Service, value: string) => {
-    setServices(services.map(service => 
+    const updatedServices = services.map(service => 
       service.id === id ? { ...service, [field]: value } : service
-    ));
-    
-    // Save changes
-    toast({
-      title: "Изменения сохранены",
-      description: "Данные услуги успешно обновлены",
-    });
+    );
+    setServices(updatedServices);
+    localStorage.setItem('adminServices', JSON.stringify(updatedServices));
   };
+
+  // Load saved services on component mount
+  useEffect(() => {
+    const savedServices = localStorage.getItem('adminServices');
+    if (savedServices) {
+      setServices(JSON.parse(savedServices));
+    }
+  }, []);
 
   return (
     <Card className="bg-white/5 border-none">

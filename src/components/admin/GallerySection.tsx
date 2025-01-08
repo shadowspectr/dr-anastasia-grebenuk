@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus, Trash2, Upload } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface GalleryItem {
   id: number;
@@ -42,11 +42,15 @@ export const GallerySection = () => {
       beforeImage: "",
       afterImage: "",
     };
-    setGalleryItems([...galleryItems, newItem]);
+    const updatedItems = [...galleryItems, newItem];
+    setGalleryItems(updatedItems);
+    localStorage.setItem('adminGalleryItems', JSON.stringify(updatedItems));
   };
 
   const handleGalleryDelete = (id: number) => {
-    setGalleryItems(galleryItems.filter(item => item.id !== id));
+    const updatedItems = galleryItems.filter(item => item.id !== id);
+    setGalleryItems(updatedItems);
+    localStorage.setItem('adminGalleryItems', JSON.stringify(updatedItems));
     toast({
       title: "Элемент галереи удален",
       description: "Элемент был успешно удален из галереи",
@@ -54,9 +58,11 @@ export const GallerySection = () => {
   };
 
   const handleInputChange = (id: number, field: keyof GalleryItem, value: string) => {
-    setGalleryItems(galleryItems.map(item =>
+    const updatedItems = galleryItems.map(item =>
       item.id === id ? { ...item, [field]: value } : item
-    ));
+    );
+    setGalleryItems(updatedItems);
+    localStorage.setItem('adminGalleryItems', JSON.stringify(updatedItems));
   };
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>, itemId: number, type: 'before' | 'after') => {
@@ -64,17 +70,15 @@ export const GallerySection = () => {
     if (!file) return;
 
     try {
-      // Create a temporary URL for the uploaded file
       const imageUrl = URL.createObjectURL(file);
-      
-      setGalleryItems(galleryItems.map(item =>
+      const updatedItems = galleryItems.map(item =>
         item.id === itemId 
           ? { ...item, [type === 'before' ? 'beforeImage' : 'afterImage']: imageUrl }
           : item
-      ));
-
-      // Here you would typically make an API call to upload the file
-      console.log(`Uploading ${type} image for item ${itemId}:`, file);
+      );
+      
+      setGalleryItems(updatedItems);
+      localStorage.setItem('adminGalleryItems', JSON.stringify(updatedItems));
       
       toast({
         title: "Изображение загружено",
@@ -88,6 +92,14 @@ export const GallerySection = () => {
       });
     }
   };
+
+  // Load saved gallery items on component mount
+  useEffect(() => {
+    const savedItems = localStorage.getItem('adminGalleryItems');
+    if (savedItems) {
+      setGalleryItems(JSON.parse(savedItems));
+    }
+  }, []);
 
   return (
     <Card className="bg-white/5 border-none">

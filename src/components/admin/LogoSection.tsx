@@ -14,12 +14,11 @@ export const LogoSection = () => {
     if (!file) return;
 
     try {
-      // Create a temporary URL for the uploaded file
       const imageUrl = URL.createObjectURL(file);
       setLogo(imageUrl);
       
-      // Here you would typically make an API call to upload the file
-      console.log('Uploading logo:', file);
+      // Save to localStorage for persistence
+      localStorage.setItem('adminLogo', imageUrl);
       
       toast({
         title: "Логотип загружен",
@@ -33,6 +32,14 @@ export const LogoSection = () => {
       });
     }
   };
+
+  // Load saved logo on component mount
+  useState(() => {
+    const savedLogo = localStorage.getItem('adminLogo');
+    if (savedLogo) {
+      setLogo(savedLogo);
+    }
+  }, []);
 
   return (
     <Card className="bg-white/5 border-none">
