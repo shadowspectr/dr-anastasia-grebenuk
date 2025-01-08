@@ -45,7 +45,7 @@ export const LogoSection = () => {
               type="file"
               id="logo-upload"
               className="hidden"
-              accept="image/*"
+              accept="image/png,image/jpeg,image/heic"
               onChange={handleLogoUpload}
             />
             <Label htmlFor="logo-upload" className="cursor-pointer">

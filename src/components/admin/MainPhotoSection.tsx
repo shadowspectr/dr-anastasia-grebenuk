@@ -34,7 +34,7 @@ export const MainPhotoSection = () => {
     <Card className="bg-white/5 border-none">
       <CardContent className="p-6">
         <div className="space-y-4">
-          <h2 className="text-xl font-semibold mb-4">Текущее главное фото</h2>
+          <h2 className="text-xl font-semibold mb-4">Главное фото (под логотипом)</h2>
           <img
             src="/lovable-uploads/046f160c-fafc-4903-917b-f923013238c4.png"
             alt="Current Main Photo"
@@ -45,7 +45,7 @@ export const MainPhotoSection = () => {
               type="file"
               id="main-photo-upload"
               className="hidden"
-              accept="image/*"
+              accept="image/png,image/jpeg,image/heic"
               onChange={handlePhotoUpload}
             />
             <Label htmlFor="main-photo-upload" className="cursor-pointer">

@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Plus, Trash2, Upload } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
@@ -51,6 +53,12 @@ export const GallerySection = () => {
     });
   };
 
+  const handleInputChange = (id: number, field: keyof GalleryItem, value: string) => {
+    setGalleryItems(galleryItems.map(item =>
+      item.id === id ? { ...item, [field]: value } : item
+    ));
+  };
+
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>, itemId: number, type: 'before' | 'after') => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -84,6 +92,24 @@ export const GallerySection = () => {
           <div className="grid gap-6">
             {galleryItems.map((item) => (
               <div key={item.id} className="p-4 bg-white/10 rounded-lg">
+                <div className="space-y-4 mb-4">
+                  <div>
+                    <Label>Название</Label>
+                    <Input
+                      value={item.title}
+                      onChange={(e) => handleInputChange(item.id, 'title', e.target.value)}
+                      className="bg-white/10 border-white/20"
+                    />
+                  </div>
+                  <div>
+                    <Label>Описание</Label>
+                    <Textarea
+                      value={item.description}
+                      onChange={(e) => handleInputChange(item.id, 'description', e.target.value)}
+                      className="bg-white/10 border-white/20"
+                    />
+                  </div>
+                </div>
                 <div className="grid md:grid-cols-2 gap-4 mb-4">
                   <div>
                     <Label>Фото "До"</Label>
@@ -92,7 +118,7 @@ export const GallerySection = () => {
                         type="file"
                         id={`before-${item.id}`}
                         className="hidden"
-                        accept="image/*"
+                        accept="image/png,image/jpeg,image/heic"
                         onChange={(e) => handleImageUpload(e, item.id, 'before')}
                       />
                       <Label htmlFor={`before-${item.id}`} className="cursor-pointer">
@@ -109,7 +135,7 @@ export const GallerySection = () => {
                         type="file"
                         id={`after-${item.id}`}
                         className="hidden"
-                        accept="image/*"
+                        accept="image/png,image/jpeg,image/heic"
                         onChange={(e) => handleImageUpload(e, item.id, 'after')}
                       />
                       <Label htmlFor={`after-${item.id}`} className="cursor-pointer">
