@@ -16,7 +16,7 @@ const queryClient = new QueryClient({
   },
 });
 
-export const AdminPanel = () => {
+const AdminPanel = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <div className="min-h-screen bg-[#121212] text-white p-4 md:p-8">
@@ -55,3 +55,5 @@ export const AdminPanel = () => {
     </QueryClientProvider>
   );
 };
+
+export default AdminPanel;
