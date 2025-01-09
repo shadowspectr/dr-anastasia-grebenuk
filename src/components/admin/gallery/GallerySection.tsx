@@ -11,7 +11,6 @@ export const GallerySection = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Fetch gallery items
   const { data: galleryItems = [], isLoading } = useQuery({
     queryKey: ['gallery'],
     queryFn: async () => {
@@ -25,7 +24,6 @@ export const GallerySection = () => {
     }
   });
 
-  // Add gallery item mutation
   const addGalleryMutation = useMutation({
     mutationFn: async () => {
       const { data, error } = await supabase
@@ -59,7 +57,6 @@ export const GallerySection = () => {
     }
   });
 
-  // Delete gallery item mutation
   const deleteGalleryMutation = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase

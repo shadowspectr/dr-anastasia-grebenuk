@@ -20,7 +20,6 @@ export const GalleryItemForm = ({ item, onDelete }: GalleryItemFormProps) => {
   const queryClient = useQueryClient();
   const [uploadingImage, setUploadingImage] = useState<{ type: 'before' | 'after' } | null>(null);
 
-  // Update gallery item mutation
   const updateGalleryMutation = useMutation({
     mutationFn: async ({ field, value }: { field: keyof GalleryItem; value: string }) => {
       const { error } = await supabase
@@ -58,21 +57,19 @@ export const GalleryItemForm = ({ item, onDelete }: GalleryItemFormProps) => {
         return;
       }
 
-      // Upload to Supabase Storage
       const fileExt = file.name.split('.').pop();
       const fileName = `${item.id}-${type}.${fileExt}`;
+
       const { error: uploadError } = await supabase.storage
         .from('gallery')
         .upload(fileName, file, { upsert: true });
 
       if (uploadError) throw uploadError;
 
-      // Get public URL
       const { data: { publicUrl } } = supabase.storage
         .from('gallery')
         .getPublicUrl(fileName);
 
-      // Update gallery item with new image URL
       await updateGalleryMutation.mutateAsync({
         field: type === 'before' ? 'before_image' : 'after_image',
         value: publicUrl
