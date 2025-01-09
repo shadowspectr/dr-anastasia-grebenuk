@@ -1,11 +1,11 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
-import { LogoSection } from "@/components/admin/logo/LogoSection";
-import { MainPhotoSection } from "@/components/admin/main-photo/MainPhotoSection";
-import { ServicesSection } from "@/components/admin/services/ServicesSection";
-import { GallerySection } from "@/components/admin/gallery/GallerySection";
-import { FooterSection } from "@/components/admin/footer/FooterSection";
+import { LogoSection } from "@/components/admin/LogoSection";
+import { MainPhotoSection } from "@/components/admin/MainPhotoSection";
+import { ServicesSection } from "@/components/admin/ServicesSection";
+import { GallerySection } from "@/components/admin/GallerySection";
+import { FooterSection } from "@/components/admin/FooterSection";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const queryClient = new QueryClient({
