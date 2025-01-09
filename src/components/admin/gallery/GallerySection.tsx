@@ -5,14 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { GalleryItemForm } from "./GalleryItemForm";
-
-interface GalleryItem {
-  id: string;
-  title: string;
-  description: string;
-  before_image: string;
-  after_image: string;
-}
+import { GalleryItem } from "./types";
 
 export const GallerySection = () => {
   const { toast } = useToast();
