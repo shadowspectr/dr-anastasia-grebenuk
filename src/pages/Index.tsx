@@ -9,6 +9,8 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { Card, CardContent } from "@/components/ui/card";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const services = [
   { name: "Контурная пластика губ", price: "9,000" },
@@ -19,24 +21,35 @@ const services = [
   { name: "Пилинг", price: "1,300" },
 ];
 
-const galleryItems = [
-  {
-    id: 1,
-    title: "Увеличение губ",
-    description: "Контурная пластика губ препаратом на основе гиалуроновой кислоты",
-    beforeImage: "/lovable-uploads/046f160c-fafc-4903-917b-f923013238c4.png",
-    afterImage: "/lovable-uploads/046f160c-fafc-4903-917b-f923013238c4.png",
-  },
-  {
-    id: 2,
-    title: "Биоревитализация",
-    description: "Процедура глубокого увлажнения кожи с помощью инъекций гиалуроновой кислоты",
-    beforeImage: "/lovable-uploads/046f160c-fafc-4903-917b-f923013238c4.png",
-    afterImage: "/lovable-uploads/046f160c-fafc-4903-917b-f923013238c4.png",
-  },
-];
-
 const Index = () => {
+  // Fetch gallery items
+  const { data: galleryItems = [] } = useQuery({
+    queryKey: ['gallery'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('gallery')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return data;
+    }
+  });
+
+  // Fetch footer data
+  const { data: footerData } = useQuery({
+    queryKey: ['footer'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('footer_links')
+        .select('*')
+        .single();
+
+      if (error) throw error;
+      return data;
+    }
+  });
+
   return (
     <div className="min-h-screen bg-[#001a1a] bg-opacity-90 text-white relative">
       {/* Background texture overlay */}
@@ -101,7 +114,7 @@ const Index = () => {
                           <div>
                             <p className="text-sm text-white/60 mb-2">До</p>
                             <img
-                              src={item.beforeImage}
+                              src={item.before_image}
                               alt={`До - ${item.title}`}
                               className="w-full h-48 object-cover rounded-lg"
                             />
@@ -109,7 +122,7 @@ const Index = () => {
                           <div>
                             <p className="text-sm text-white/60 mb-2">После</p>
                             <img
-                              src={item.afterImage}
+                              src={item.after_image}
                               alt={`После - ${item.title}`}
                               className="w-full h-48 object-cover rounded-lg"
                             />
@@ -174,9 +187,36 @@ const Index = () => {
             <p>Все права защищены</p>
           </div>
           <div className="flex justify-center gap-4">
-            <a href="#" className="hover:text-[#4CAF50] transition-colors">Instagram</a>
-            <a href="#" className="hover:text-[#4CAF50] transition-colors">WhatsApp</a>
-            <a href="#" className="hover:text-[#4CAF50] transition-colors">Telegram</a>
+            {footerData?.instagram && (
+              <a 
+                href={footerData.instagram} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="hover:text-[#4CAF50] transition-colors"
+              >
+                Instagram
+              </a>
+            )}
+            {footerData?.whatsapp && (
+              <a 
+                href={`https://wa.me/${footerData.whatsapp}`} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="hover:text-[#4CAF50] transition-colors"
+              >
+                WhatsApp
+              </a>
+            )}
+            {footerData?.telegram && (
+              <a 
+                href={footerData.telegram} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="hover:text-[#4CAF50] transition-colors"
+              >
+                Telegram
+              </a>
+            )}
           </div>
         </footer>
       </div>

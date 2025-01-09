@@ -68,24 +68,54 @@ export type Database = {
         }
         Relationships: []
       }
-      gallery: {
+      footer_links: {
         Row: {
           created_at: string
-          description: string
           id: string
-          image_url: string
+          instagram: string
+          telegram: string
+          whatsapp: string
         }
         Insert: {
           created_at?: string
-          description: string
           id?: string
-          image_url: string
+          instagram?: string
+          telegram?: string
+          whatsapp?: string
         }
         Update: {
           created_at?: string
+          id?: string
+          instagram?: string
+          telegram?: string
+          whatsapp?: string
+        }
+        Relationships: []
+      }
+      gallery: {
+        Row: {
+          after_image: string
+          before_image: string
+          created_at: string
+          description: string
+          id: string
+          title: string
+        }
+        Insert: {
+          after_image: string
+          before_image: string
+          created_at?: string
+          description: string
+          id?: string
+          title: string
+        }
+        Update: {
+          after_image?: string
+          before_image?: string
+          created_at?: string
           description?: string
           id?: string
-          image_url?: string
+          title?: string
         }
         Relationships: []
       }

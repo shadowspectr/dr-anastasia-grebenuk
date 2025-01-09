@@ -4,31 +4,65 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+
+interface FooterData {
+  id: string;
+  instagram: string;
+  whatsapp: string;
+  telegram: string;
+}
 
 export const FooterSection = () => {
   const { toast } = useToast();
-  const [footerData, setFooterData] = useState({
-    instagram: "",
-    whatsapp: "",
-    telegram: "",
+  const queryClient = useQueryClient();
+
+  // Fetch footer data
+  const { data: footerData, isLoading } = useQuery({
+    queryKey: ['footer'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('footer_links')
+        .select('*')
+        .single();
+
+      if (error) throw error;
+      return data as FooterData;
+    }
   });
 
-  const handleFooterSave = () => {
-    localStorage.setItem('adminFooterData', JSON.stringify(footerData));
-    toast({
-      title: "Сохранено",
-      description: "Данные футера успешно обновлены",
-    });
-  };
+  // Update footer mutation
+  const updateFooterMutation = useMutation({
+    mutationFn: async (updates: Partial<FooterData>) => {
+      const { error } = await supabase
+        .from('footer_links')
+        .update(updates)
+        .eq('id', footerData?.id);
 
-  // Load saved footer data on component mount
-  useEffect(() => {
-    const savedFooterData = localStorage.getItem('adminFooterData');
-    if (savedFooterData) {
-      setFooterData(JSON.parse(savedFooterData));
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['footer'] });
+      toast({
+        title: "Сохранено",
+        description: "Данные футера успешно обновлены",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Ошибка",
+        description: "Не удалось обновить данные футера",
+        variant: "destructive",
+      });
+      console.error('Error updating footer:', error);
     }
-  }, []);
+  });
+
+  if (isLoading) {
+    return <div>Загрузка...</div>;
+  }
 
   return (
     <Card className="bg-white/5 border-none">
@@ -40,8 +74,8 @@ export const FooterSection = () => {
               <Label htmlFor="instagram">Instagram</Label>
               <Input
                 id="instagram"
-                value={footerData.instagram}
-                onChange={(e) => setFooterData({ ...footerData, instagram: e.target.value })}
+                value={footerData?.instagram || ''}
+                onChange={(e) => updateFooterMutation.mutate({ instagram: e.target.value })}
                 placeholder="Ссылка на Instagram"
                 className="bg-white/10 border-white/20"
               />
@@ -50,8 +84,8 @@ export const FooterSection = () => {
               <Label htmlFor="whatsapp">WhatsApp</Label>
               <Input
                 id="whatsapp"
-                value={footerData.whatsapp}
-                onChange={(e) => setFooterData({ ...footerData, whatsapp: e.target.value })}
+                value={footerData?.whatsapp || ''}
+                onChange={(e) => updateFooterMutation.mutate({ whatsapp: e.target.value })}
                 placeholder="Номер WhatsApp"
                 className="bg-white/10 border-white/20"
               />
@@ -60,15 +94,12 @@ export const FooterSection = () => {
               <Label htmlFor="telegram">Telegram</Label>
               <Input
                 id="telegram"
-                value={footerData.telegram}
-                onChange={(e) => setFooterData({ ...footerData, telegram: e.target.value })}
+                value={footerData?.telegram || ''}
+                onChange={(e) => updateFooterMutation.mutate({ telegram: e.target.value })}
                 placeholder="Ссылка на Telegram"
                 className="bg-white/10 border-white/20"
               />
             </div>
-            <Button onClick={handleFooterSave} className="bg-[#004d40] hover:bg-[#00695c]">
-              <Save className="mr-2 h-4 w-4" /> Сохранить изменения
-            </Button>
           </div>
         </div>
       </CardContent>

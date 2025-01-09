@@ -6,80 +6,148 @@ import { Textarea } from "@/components/ui/textarea";
 import { Plus, Trash2, Upload } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface GalleryItem {
-  id: number;
+  id: string;
   title: string;
   description: string;
-  beforeImage: string;
-  afterImage: string;
+  before_image: string;
+  after_image: string;
 }
 
 export const GallerySection = () => {
   const { toast } = useToast();
-  const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([
-    {
-      id: 1,
-      title: "Увеличение губ",
-      description: "Контурная пластика губ препаратом на основе гиалуроновой кислоты",
-      beforeImage: "/lovable-uploads/046f160c-fafc-4903-917b-f923013238c4.png",
-      afterImage: "/lovable-uploads/046f160c-fafc-4903-917b-f923013238c4.png",
+  const queryClient = useQueryClient();
+  const [uploadingImage, setUploadingImage] = useState<{ id: string; type: 'before' | 'after' } | null>(null);
+
+  // Fetch gallery items
+  const { data: galleryItems = [], isLoading } = useQuery({
+    queryKey: ['gallery'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('gallery')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return data as GalleryItem[];
+    }
+  });
+
+  // Add gallery item mutation
+  const addGalleryMutation = useMutation({
+    mutationFn: async () => {
+      const { data, error } = await supabase
+        .from('gallery')
+        .insert([{
+          title: '',
+          description: '',
+          before_image: '',
+          after_image: ''
+        }])
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
     },
-    {
-      id: 2,
-      title: "Биоревитализация",
-      description: "Процедура глубокого увлажнения кожи с помощью инъекций гиалуроновой кислоты",
-      beforeImage: "/lovable-uploads/046f160c-fafc-4903-917b-f923013238c4.png",
-      afterImage: "/lovable-uploads/046f160c-fafc-4903-917b-f923013238c4.png",
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['gallery'] });
+      toast({
+        title: "Успешно",
+        description: "Новая работа добавлена в галерею",
+      });
     },
-  ]);
+    onError: (error) => {
+      toast({
+        title: "Ошибка",
+        description: "Не удалось добавить работу",
+        variant: "destructive",
+      });
+      console.error('Error adding gallery item:', error);
+    }
+  });
 
-  const handleGalleryAdd = () => {
-    const newItem: GalleryItem = {
-      id: galleryItems.length + 1,
-      title: "",
-      description: "",
-      beforeImage: "",
-      afterImage: "",
-    };
-    const updatedItems = [...galleryItems, newItem];
-    setGalleryItems(updatedItems);
-    localStorage.setItem('adminGalleryItems', JSON.stringify(updatedItems));
-  };
+  // Delete gallery item mutation
+  const deleteGalleryMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('gallery')
+        .delete()
+        .eq('id', id);
 
-  const handleGalleryDelete = (id: number) => {
-    const updatedItems = galleryItems.filter(item => item.id !== id);
-    setGalleryItems(updatedItems);
-    localStorage.setItem('adminGalleryItems', JSON.stringify(updatedItems));
-    toast({
-      title: "Элемент галереи удален",
-      description: "Элемент был успешно удален из галереи",
-    });
-  };
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['gallery'] });
+      toast({
+        title: "Успешно",
+        description: "Работа удалена из галереи",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Ошибка",
+        description: "Не удалось удалить работу",
+        variant: "destructive",
+      });
+      console.error('Error deleting gallery item:', error);
+    }
+  });
 
-  const handleInputChange = (id: number, field: keyof GalleryItem, value: string) => {
-    const updatedItems = galleryItems.map(item =>
-      item.id === id ? { ...item, [field]: value } : item
-    );
-    setGalleryItems(updatedItems);
-    localStorage.setItem('adminGalleryItems', JSON.stringify(updatedItems));
-  };
+  // Update gallery item mutation
+  const updateGalleryMutation = useMutation({
+    mutationFn: async ({ id, field, value }: { id: string; field: keyof GalleryItem; value: string }) => {
+      const { error } = await supabase
+        .from('gallery')
+        .update({ [field]: value })
+        .eq('id', id);
 
-  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>, itemId: number, type: 'before' | 'after') => {
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['gallery'] });
+    },
+    onError: (error) => {
+      toast({
+        title: "Ошибка",
+        description: "Не удалось обновить данные",
+        variant: "destructive",
+      });
+      console.error('Error updating gallery item:', error);
+    }
+  });
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>, itemId: string, type: 'before' | 'after') => {
     const file = event.target.files?.[0];
     if (!file) return;
 
     try {
-      const imageUrl = URL.createObjectURL(file);
-      const updatedItems = galleryItems.map(item =>
-        item.id === itemId 
-          ? { ...item, [type === 'before' ? 'beforeImage' : 'afterImage']: imageUrl }
-          : item
-      );
-      
-      setGalleryItems(updatedItems);
-      localStorage.setItem('adminGalleryItems', JSON.stringify(updatedItems));
-      
+      setUploadingImage({ id: itemId, type });
+
+      // Upload to Supabase Storage
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${itemId}-${type}.${fileExt}`;
+      const { error: uploadError, data } = await supabase.storage
+        .from('gallery')
+        .upload(fileName, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('gallery')
+        .getPublicUrl(fileName);
+
+      // Update gallery item with new image URL
+      await updateGalleryMutation.mutateAsync({
+        id: itemId,
+        field: type === 'before' ? 'before_image' : 'after_image',
+        value: publicUrl
+      });
+
       toast({
         title: "Изображение загружено",
         description: `${type === 'before' ? 'До' : 'После'} изображение успешно загружено`,
@@ -90,16 +158,15 @@ export const GallerySection = () => {
         description: "Не удалось загрузить изображение",
         variant: "destructive",
       });
+      console.error('Error uploading image:', error);
+    } finally {
+      setUploadingImage(null);
     }
   };
 
-  // Load saved gallery items on component mount
-  useEffect(() => {
-    const savedItems = localStorage.getItem('adminGalleryItems');
-    if (savedItems) {
-      setGalleryItems(JSON.parse(savedItems));
-    }
-  }, []);
+  if (isLoading) {
+    return <div>Загрузка...</div>;
+  }
 
   return (
     <Card className="bg-white/5 border-none">
@@ -107,7 +174,11 @@ export const GallerySection = () => {
         <div className="space-y-4">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold">Управление галереей</h2>
-            <Button onClick={handleGalleryAdd} className="bg-[#004d40] hover:bg-[#00695c]">
+            <Button 
+              onClick={() => addGalleryMutation.mutate()}
+              className="bg-[#004d40] hover:bg-[#00695c]"
+              disabled={addGalleryMutation.isPending}
+            >
               <Plus className="mr-2 h-4 w-4" /> Добавить работу
             </Button>
           </div>
@@ -119,7 +190,11 @@ export const GallerySection = () => {
                     <Label>Название</Label>
                     <Input
                       value={item.title}
-                      onChange={(e) => handleInputChange(item.id, 'title', e.target.value)}
+                      onChange={(e) => updateGalleryMutation.mutate({
+                        id: item.id,
+                        field: 'title',
+                        value: e.target.value
+                      })}
                       className="bg-white/10 border-white/20"
                     />
                   </div>
@@ -127,7 +202,11 @@ export const GallerySection = () => {
                     <Label>Описание</Label>
                     <Textarea
                       value={item.description}
-                      onChange={(e) => handleInputChange(item.id, 'description', e.target.value)}
+                      onChange={(e) => updateGalleryMutation.mutate({
+                        id: item.id,
+                        field: 'description',
+                        value: e.target.value
+                      })}
                       className="bg-white/10 border-white/20"
                     />
                   </div>
@@ -136,9 +215,9 @@ export const GallerySection = () => {
                   <div>
                     <Label>Фото "До"</Label>
                     <div className="mt-2">
-                      {item.beforeImage && (
+                      {item.before_image && (
                         <img
-                          src={item.beforeImage}
+                          src={item.before_image}
                           alt="Before"
                           className="w-full h-48 object-cover rounded-lg mb-2"
                         />
@@ -147,12 +226,19 @@ export const GallerySection = () => {
                         type="file"
                         id={`before-${item.id}`}
                         className="hidden"
-                        accept="image/png,image/jpeg,image/heic"
+                        accept="image/*"
                         onChange={(e) => handleImageUpload(e, item.id, 'before')}
+                        disabled={!!uploadingImage}
                       />
                       <Label htmlFor={`before-${item.id}`} className="cursor-pointer">
-                        <Button className="bg-[#004d40] hover:bg-[#00695c]">
-                          <Upload className="mr-2 h-4 w-4" /> Загрузить фото
+                        <Button 
+                          className="bg-[#004d40] hover:bg-[#00695c]"
+                          disabled={uploadingImage?.id === item.id && uploadingImage?.type === 'before'}
+                        >
+                          <Upload className="mr-2 h-4 w-4" /> 
+                          {uploadingImage?.id === item.id && uploadingImage?.type === 'before' 
+                            ? 'Загрузка...' 
+                            : 'Загрузить фото'}
                         </Button>
                       </Label>
                     </div>
@@ -160,9 +246,9 @@ export const GallerySection = () => {
                   <div>
                     <Label>Фото "После"</Label>
                     <div className="mt-2">
-                      {item.afterImage && (
+                      {item.after_image && (
                         <img
-                          src={item.afterImage}
+                          src={item.after_image}
                           alt="After"
                           className="w-full h-48 object-cover rounded-lg mb-2"
                         />
@@ -171,12 +257,19 @@ export const GallerySection = () => {
                         type="file"
                         id={`after-${item.id}`}
                         className="hidden"
-                        accept="image/png,image/jpeg,image/heic"
+                        accept="image/*"
                         onChange={(e) => handleImageUpload(e, item.id, 'after')}
+                        disabled={!!uploadingImage}
                       />
                       <Label htmlFor={`after-${item.id}`} className="cursor-pointer">
-                        <Button className="bg-[#004d40] hover:bg-[#00695c]">
-                          <Upload className="mr-2 h-4 w-4" /> Загрузить фото
+                        <Button 
+                          className="bg-[#004d40] hover:bg-[#00695c]"
+                          disabled={uploadingImage?.id === item.id && uploadingImage?.type === 'after'}
+                        >
+                          <Upload className="mr-2 h-4 w-4" /> 
+                          {uploadingImage?.id === item.id && uploadingImage?.type === 'after' 
+                            ? 'Загрузка...' 
+                            : 'Загрузить фото'}
                         </Button>
                       </Label>
                     </div>
@@ -184,8 +277,9 @@ export const GallerySection = () => {
                 </div>
                 <Button
                   variant="destructive"
-                  onClick={() => handleGalleryDelete(item.id)}
+                  onClick={() => deleteGalleryMutation.mutate(item.id)}
                   className="w-full"
+                  disabled={deleteGalleryMutation.isPending}
                 >
                   <Trash2 className="mr-2 h-4 w-4" /> Удалить работу
                 </Button>
