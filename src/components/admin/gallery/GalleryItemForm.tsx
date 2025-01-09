@@ -2,11 +2,12 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Upload, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { ImageUploadButton } from "./ImageUploadButton";
 
 interface GalleryItem {
   id: string;
@@ -53,13 +54,24 @@ export const GalleryItemForm = ({ item, onDelete }: GalleryItemFormProps) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    // Validate file type
+    const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml', 'image/webp', 'image/heic'];
+    if (!allowedTypes.includes(file.type)) {
+      toast({
+        title: "Ошибка",
+        description: "Пожалуйста, выберите изображение в формате PNG, JPG, SVG, WEBP или HEIC",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       setUploadingImage({ id: item.id, type });
 
       // Upload to Supabase Storage
       const fileExt = file.name.split('.').pop();
       const fileName = `${item.id}-${type}.${fileExt}`;
-      const { error: uploadError, data } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from('gallery')
         .upload(fileName, file, { upsert: true });
 
@@ -132,25 +144,12 @@ export const GalleryItemForm = ({ item, onDelete }: GalleryItemFormProps) => {
                 className="w-full h-48 object-cover rounded-lg mb-2"
               />
             )}
-            <div className="relative">
-              <input
-                type="file"
-                onChange={(e) => handleImageUpload(e, 'before')}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                accept="image/*"
-                disabled={!!uploadingImage}
-              />
-              <Button 
-                type="button"
-                className="w-full bg-[#004d40] hover:bg-[#00695c]"
-                disabled={uploadingImage?.id === item.id && uploadingImage?.type === 'before'}
-              >
-                <Upload className="mr-2 h-4 w-4" /> 
-                {uploadingImage?.id === item.id && uploadingImage?.type === 'before' 
-                  ? 'Загрузка...' 
-                  : 'Загрузить фото'}
-              </Button>
-            </div>
+            <ImageUploadButton
+              id={`before-${item.id}`}
+              isUploading={uploadingImage?.id === item.id && uploadingImage?.type === 'before'}
+              onFileSelect={(e) => handleImageUpload(e, 'before')}
+              label="Загрузить фото"
+            />
           </div>
         </div>
         <div>
@@ -163,25 +162,12 @@ export const GalleryItemForm = ({ item, onDelete }: GalleryItemFormProps) => {
                 className="w-full h-48 object-cover rounded-lg mb-2"
               />
             )}
-            <div className="relative">
-              <input
-                type="file"
-                onChange={(e) => handleImageUpload(e, 'after')}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                accept="image/*"
-                disabled={!!uploadingImage}
-              />
-              <Button 
-                type="button"
-                className="w-full bg-[#004d40] hover:bg-[#00695c]"
-                disabled={uploadingImage?.id === item.id && uploadingImage?.type === 'after'}
-              >
-                <Upload className="mr-2 h-4 w-4" /> 
-                {uploadingImage?.id === item.id && uploadingImage?.type === 'after' 
-                  ? 'Загрузка...' 
-                  : 'Загрузить фото'}
-              </Button>
-            </div>
+            <ImageUploadButton
+              id={`after-${item.id}`}
+              isUploading={uploadingImage?.id === item.id && uploadingImage?.type === 'after'}
+              onFileSelect={(e) => handleImageUpload(e, 'after')}
+              label="Загрузить фото"
+            />
           </div>
         </div>
       </div>
