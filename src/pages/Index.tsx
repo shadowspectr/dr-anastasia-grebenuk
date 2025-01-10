@@ -12,17 +12,33 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { EducationSection } from "@/components/EducationSection";
-
-const services = [
-  { name: "Контурная пластика губ", price: "9,000" },
-  { name: "Биоревитализация лица", price: "2,000" },
-  { name: "Мезотерапия лица", price: "4,000" },
-  { name: "Мезотерапия волос", price: "2,500" },
-  { name: "Чистка лица", price: "3,000" },
-  { name: "Пилинг", price: "1,300" },
-];
+import { useEffect, useState } from "react";
 
 const Index = () => {
+  const [mainPhoto, setMainPhoto] = useState("/lovable-uploads/3e533f6e-3c39-4db5-8fc0-7afaa4aeba30.png");
+
+  // Fetch services from Supabase
+  const { data: services = [] } = useQuery({
+    queryKey: ['services'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('services')
+        .select('*')
+        .order('created_at', { ascending: true });
+
+      if (error) throw error;
+      return data;
+    }
+  });
+
+  // Load main photo from localStorage
+  useEffect(() => {
+    const savedPhoto = localStorage.getItem('adminMainPhoto');
+    if (savedPhoto) {
+      setMainPhoto(savedPhoto);
+    }
+  }, []);
+
   // Fetch gallery items
   const { data: galleryItems = [] } = useQuery({
     queryKey: ['gallery'],
@@ -67,12 +83,11 @@ const Index = () => {
             />
           </div>
           
-          {/* Main header image with circular frame */}
           <div className="text-center">
             <div className="relative inline-block">
               <div className="w-[300px] h-[300px] md:w-[400px] md:h-[400px] rounded-full overflow-hidden border-4 border-[#004d40] shadow-[0_0_30px_rgba(0,77,64,0.3)] mx-auto">
                 <img
-                  src="https://images.unsplash.com/photo-1560750588-73207b1ef5b8?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80"
+                  src={mainPhoto}
                   alt="Cosmetology Services"
                   className="w-full h-full object-cover"
                 />
@@ -88,8 +103,8 @@ const Index = () => {
           <Table>
             <TableBody>
               {services.map((service) => (
-                <TableRow key={service.name}>
-                  <TableCell className="text-white text-left">{service.name}</TableCell>
+                <TableRow key={service.id}>
+                  <TableCell className="text-white text-left">{service.title}</TableCell>
                   <TableCell className="text-white text-right">от {service.price} ₽</TableCell>
                 </TableRow>
               ))}
