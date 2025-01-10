@@ -11,6 +11,7 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { EducationSection } from "@/components/EducationSection";
 
 const services = [
   { name: "Контурная пластика губ", price: "9,000" },
@@ -36,7 +37,6 @@ const Index = () => {
     }
   });
 
-  // Fetch footer data
   const { data: footerData } = useQuery({
     queryKey: ['footer'],
     queryFn: async () => {
@@ -52,14 +52,12 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-[#001a1a] bg-opacity-90 text-white relative">
-      {/* Background texture overlay */}
       <div 
         className="absolute inset-0 bg-cover bg-center opacity-10"
         style={{ backgroundImage: 'url("/lovable-uploads/a27874b1-e959-43d2-a635-06b486deb91d.png")' }}
       />
       
       <div className="relative container mx-auto px-4 py-8">
-        {/* Header Section with Enhanced Logo and Photo */}
         <header className="mb-16">
           <div className="flex justify-between items-center mb-8">
             <img
@@ -86,7 +84,6 @@ const Index = () => {
           </div>
         </header>
 
-        {/* Services Section with Updated Colors */}
         <section className="max-w-2xl mx-auto mb-16 bg-white/5 backdrop-blur-sm rounded-lg p-6">
           <Table>
             <TableBody>
@@ -100,7 +97,6 @@ const Index = () => {
           </Table>
         </section>
 
-        {/* Gallery Section with Enhanced Mobile Navigation */}
         <section className="max-w-4xl mx-auto mb-16">
           <h2 className="text-2xl font-semibold text-center mb-8">Галерея работ</h2>
           <div className="relative">
@@ -153,7 +149,9 @@ const Index = () => {
           </div>
         </section>
 
-        {/* CTA Section with Updated Colors and Link */}
+        {/* Education Section */}
+        <EducationSection />
+
         <section className="text-center mb-16">
           <a 
             href="https://web.telegram.org/k/#@dr_anastasia_grebenuk"
@@ -180,7 +178,6 @@ const Index = () => {
           </div>
         </section>
 
-        {/* Footer with Updated Colors */}
         <footer className="text-center text-sm text-white/60">
           <div className="mb-4">
             <p>© 2024 Anastasia Grebenuk Cosmetology</p>

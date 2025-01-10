@@ -68,6 +68,56 @@ export type Database = {
         }
         Relationships: []
       }
+      education: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string
+          id?: string
+          title?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      education_photos: {
+        Row: {
+          created_at: string
+          education_id: string | null
+          id: string
+          photo_url: string
+        }
+        Insert: {
+          created_at?: string
+          education_id?: string | null
+          id?: string
+          photo_url: string
+        }
+        Update: {
+          created_at?: string
+          education_id?: string | null
+          id?: string
+          photo_url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "education_photos_education_id_fkey"
+            columns: ["education_id"]
+            isOneToOne: false
+            referencedRelation: "education"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       footer_links: {
         Row: {
           created_at: string
