@@ -15,12 +15,23 @@ export const MainPhotoSection = () => {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    // Validate file type
+    const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml', 'image/webp', 'image/heic'];
+    if (!allowedTypes.includes(file.type)) {
+      toast({
+        title: "Ошибка",
+        description: "Поддерживаются только форматы: PNG, JPG, SVG, WebP, HEIC",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       setIsUploading(true);
 
       // Upload to Supabase Storage
       const fileExt = file.name.split('.').pop();
-      const fileName = `${crypto.randomUUID()}.${fileExt}`;
+      const fileName = `main-photo-${crypto.randomUUID()}.${fileExt}`;
       
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('gallery')
@@ -77,8 +88,9 @@ export const MainPhotoSection = () => {
               type="file"
               id="main-photo-upload"
               className="hidden"
-              accept="image/png,image/jpeg,image/heic"
+              accept=".png,.jpg,.jpeg,.svg,.webp,.heic"
               onChange={handlePhotoUpload}
+              disabled={isUploading}
             />
             <Label htmlFor="main-photo-upload" className="cursor-pointer">
               <Button 
