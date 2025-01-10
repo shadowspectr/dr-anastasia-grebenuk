@@ -4,32 +4,53 @@ import { Label } from "@/components/ui/label";
 import { Upload } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 export const MainPhotoSection = () => {
   const { toast } = useToast();
   const [mainPhoto, setMainPhoto] = useState("/lovable-uploads/3e533f6e-3c39-4db5-8fc0-7afaa4aeba30.png");
+  const [isUploading, setIsUploading] = useState(false);
 
   const handlePhotoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
     try {
-      const imageUrl = URL.createObjectURL(file);
-      setMainPhoto(imageUrl);
+      setIsUploading(true);
+
+      // Upload to Supabase Storage
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${crypto.randomUUID()}.${fileExt}`;
+      
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('gallery')
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      // Get the public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('gallery')
+        .getPublicUrl(fileName);
+
+      setMainPhoto(publicUrl);
       
       // Save to localStorage for persistence
-      localStorage.setItem('adminMainPhoto', imageUrl);
+      localStorage.setItem('adminMainPhoto', publicUrl);
       
       toast({
         title: "Фото загружено",
         description: "Новое главное фото успешно загружено",
       });
     } catch (error) {
+      console.error('Upload error:', error);
       toast({
         title: "Ошибка",
         description: "Не удалось загрузить фото",
         variant: "destructive",
       });
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -60,8 +81,12 @@ export const MainPhotoSection = () => {
               onChange={handlePhotoUpload}
             />
             <Label htmlFor="main-photo-upload" className="cursor-pointer">
-              <Button className="bg-[#004d40] hover:bg-[#00695c]">
-                <Upload className="mr-2 h-4 w-4" /> Загрузить новое фото
+              <Button 
+                className="bg-[#004d40] hover:bg-[#00695c]"
+                disabled={isUploading}
+              >
+                <Upload className="mr-2 h-4 w-4" />
+                {isUploading ? "Загрузка..." : "Загрузить новое фото"}
               </Button>
             </Label>
           </div>
