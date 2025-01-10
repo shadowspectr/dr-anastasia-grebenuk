@@ -5,67 +5,113 @@ import { Label } from "@/components/ui/label";
 import { Plus, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Service {
-  id: number;
-  name: string;
+  id: string;
+  title: string;
   price: string;
 }
 
 export const ServicesSection = () => {
   const { toast } = useToast();
-  const [services, setServices] = useState<Service[]>([
-    { id: 1, name: "Контурная пластика губ", price: "9,000" },
-    { id: 2, name: "Биоревитализация лица", price: "2,000" },
-    { id: 3, name: "Мезотерапия лица", price: "4,000" },
-    { id: 4, name: "Мезотерапия волос", price: "2,500" },
-    { id: 5, name: "Чистка лица", price: "3,000" },
-    { id: 6, name: "Пилинг", price: "1,300" },
-  ]);
+  const [services, setServices] = useState<Service[]>([]);
 
-  const handleServiceAdd = () => {
-    const newService: Service = {
-      id: services.length + 1,
-      name: "",
-      price: "",
+  // Load services from Supabase on component mount
+  useEffect(() => {
+    const fetchServices = async () => {
+      const { data, error } = await supabase
+        .from('services')
+        .select('id, title, price')
+        .order('created_at', { ascending: true });
+
+      if (error) {
+        toast({
+          title: "Ошибка загрузки услуг",
+          description: error.message,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setServices(data || []);
     };
-    const updatedServices = [...services, newService];
-    setServices(updatedServices);
-    localStorage.setItem('adminServices', JSON.stringify(updatedServices));
+
+    fetchServices();
+  }, [toast]);
+
+  const handleServiceAdd = async () => {
+    const { data, error } = await supabase
+      .from('services')
+      .insert({
+        title: '',
+        price: '',
+        description: '',
+        icon: ''
+      })
+      .select()
+      .single();
+
+    if (error) {
+      toast({
+        title: "Ошибка при добавлении услуги",
+        description: error.message,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setServices([...services, { id: data.id, title: data.title, price: data.price }]);
   };
 
-  const handleServiceDelete = (id: number) => {
-    const updatedServices = services.filter(service => service.id !== id);
-    setServices(updatedServices);
-    localStorage.setItem('adminServices', JSON.stringify(updatedServices));
+  const handleServiceDelete = async (id: string) => {
+    const { error } = await supabase
+      .from('services')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      toast({
+        title: "Ошибка при удалении услуги",
+        description: error.message,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setServices(services.filter(service => service.id !== id));
     toast({
       title: "Услуга удалена",
       description: "Услуга была успешно удалена из списка",
     });
   };
 
-  const handleServiceUpdate = (id: number, field: keyof Service, value: string) => {
-    const updatedServices = services.map(service => 
-      service.id === id ? { ...service, [field]: value } : service
-    );
-    setServices(updatedServices);
-    localStorage.setItem('adminServices', JSON.stringify(updatedServices));
-  };
+  const handleServiceUpdate = async (id: string, field: keyof Service, value: string) => {
+    const { error } = await supabase
+      .from('services')
+      .update({ [field]: value })
+      .eq('id', id);
 
-  // Load saved services on component mount
-  useEffect(() => {
-    const savedServices = localStorage.getItem('adminServices');
-    if (savedServices) {
-      setServices(JSON.parse(savedServices));
+    if (error) {
+      toast({
+        title: "Ошибка при обновлении услуги",
+        description: error.message,
+        variant: "destructive",
+      });
+      return;
     }
-  }, []);
+
+    setServices(services.map(service => 
+      service.id === id ? { ...service, [field]: value } : service
+    ));
+  };
 
   return (
     <Card className="bg-white/5 border-none">
       <CardContent className="p-6">
         <div className="space-y-4">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold">Управление услугами</h2>
+            <h2 className="text-xl font-semibold text-white">Управление услугами</h2>
             <Button onClick={handleServiceAdd} className="bg-[#004d40] hover:bg-[#00695c]">
               <Plus className="mr-2 h-4 w-4" /> Добавить услугу
             </Button>
@@ -74,21 +120,21 @@ export const ServicesSection = () => {
             {services.map((service) => (
               <div key={service.id} className="flex gap-4 items-start bg-white/10 p-4 rounded-lg">
                 <div className="flex-1">
-                  <Label htmlFor={`service-name-${service.id}`}>Название услуги</Label>
+                  <Label htmlFor={`service-title-${service.id}`} className="text-white">Название услуги</Label>
                   <Input
-                    id={`service-name-${service.id}`}
-                    value={service.name}
-                    onChange={(e) => handleServiceUpdate(service.id, 'name', e.target.value)}
-                    className="bg-white/10 border-white/20"
+                    id={`service-title-${service.id}`}
+                    value={service.title}
+                    onChange={(e) => handleServiceUpdate(service.id, 'title', e.target.value)}
+                    className="bg-white/10 border-white/20 text-white placeholder-white/50"
                   />
                 </div>
                 <div className="w-32">
-                  <Label htmlFor={`service-price-${service.id}`}>Цена</Label>
+                  <Label htmlFor={`service-price-${service.id}`} className="text-white">Цена</Label>
                   <Input
                     id={`service-price-${service.id}`}
                     value={service.price}
                     onChange={(e) => handleServiceUpdate(service.id, 'price', e.target.value)}
-                    className="bg-white/10 border-white/20"
+                    className="bg-white/10 border-white/20 text-white placeholder-white/50"
                   />
                 </div>
                 <Button

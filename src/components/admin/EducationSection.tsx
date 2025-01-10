@@ -131,23 +131,25 @@ export const EducationSection = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-medium mb-2">Заголовок</h3>
+        <h3 className="text-lg font-medium mb-2 text-white">Заголовок</h3>
         <Input
           defaultValue={educationData?.education?.title}
           onBlur={(e) => handleTitleUpdate(e.target.value)}
+          className="bg-white/10 border-white/20 text-white placeholder-white/50"
         />
       </div>
 
       <div>
-        <h3 className="text-lg font-medium mb-2">Описание</h3>
+        <h3 className="text-lg font-medium mb-2 text-white">Описание</h3>
         <Textarea
           defaultValue={educationData?.education?.description}
           onBlur={(e) => handleDescriptionUpdate(e.target.value)}
+          className="bg-white/10 border-white/20 text-white placeholder-white/50 min-h-[100px]"
         />
       </div>
 
       <div>
-        <h3 className="text-lg font-medium mb-2">Фотографии</h3>
+        <h3 className="text-lg font-medium mb-2 text-white">Фотографии</h3>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
           {educationData?.photos?.map((photo) => (
             <div key={photo.id} className="relative group">
@@ -173,9 +175,10 @@ export const EducationSection = () => {
             accept="image/*"
             onChange={handlePhotoUpload}
             disabled={uploading}
+            className="bg-white/10 border-white/20 text-white file:bg-white/10 file:text-white file:border-0"
           />
           {uploading && (
-            <div className="flex items-center gap-2 mt-2">
+            <div className="flex items-center gap-2 mt-2 text-white">
               <Loader2 className="h-4 w-4 animate-spin" />
               <span>Загрузка...</span>
             </div>
