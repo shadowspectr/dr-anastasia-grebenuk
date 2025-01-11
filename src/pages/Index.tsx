@@ -14,30 +14,47 @@ import { supabase } from "@/integrations/supabase/client";
 import { EducationSection } from "@/components/EducationSection";
 import { useEffect, useState } from "react";
 
+interface Service {
+  id: string;
+  title: string;
+  price: string;
+  category_id: string | null;
+}
+
+interface Category {
+  id: string;
+  title: string;
+  services?: Service[];
+}
+
 const Index = () => {
   const [mainPhoto, setMainPhoto] = useState("/lovable-uploads/3e533f6e-3c39-4db5-8fc0-7afaa4aeba30.png");
 
-  // Fetch services from Supabase
-  const { data: services = [] } = useQuery({
-    queryKey: ['services'],
+  // Fetch categories and services
+  const { data: categories = [] } = useQuery({
+    queryKey: ['categories'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data: categoriesData, error: categoriesError } = await supabase
+        .from('service_categories')
+        .select('*')
+        .order('created_at', { ascending: true });
+
+      if (categoriesError) throw categoriesError;
+
+      const { data: servicesData, error: servicesError } = await supabase
         .from('services')
         .select('*')
         .order('created_at', { ascending: true });
 
-      if (error) throw error;
-      return data;
+      if (servicesError) throw servicesError;
+
+      // Group services by category
+      return categoriesData.map((category: Category) => ({
+        ...category,
+        services: servicesData.filter((service: Service) => service.category_id === category.id)
+      }));
     }
   });
-
-  // Load main photo from localStorage
-  useEffect(() => {
-    const savedPhoto = localStorage.getItem('adminMainPhoto');
-    if (savedPhoto) {
-      setMainPhoto(savedPhoto);
-    }
-  }, []);
 
   // Fetch gallery items
   const { data: galleryItems = [] } = useQuery({
@@ -65,6 +82,14 @@ const Index = () => {
       return data;
     }
   });
+
+  // Load main photo from localStorage
+  useEffect(() => {
+    const savedPhoto = localStorage.getItem('adminMainPhoto');
+    if (savedPhoto) {
+      setMainPhoto(savedPhoto);
+    }
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#001a1a] bg-opacity-90 text-white relative">
@@ -99,18 +124,24 @@ const Index = () => {
           </div>
         </header>
 
-        <section className="max-w-2xl mx-auto mb-16 bg-white/5 backdrop-blur-sm rounded-lg p-6">
-          <Table>
-            <TableBody>
-              {services.map((service) => (
-                <TableRow key={service.id}>
-                  <TableCell className="text-white text-left">{service.title}</TableCell>
-                  <TableCell className="text-white text-right">от {service.price} ₽</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </section>
+        {/* Services Section with Categories */}
+        {categories.map((category) => (
+          category.services && category.services.length > 0 && (
+            <section key={category.id} className="max-w-2xl mx-auto mb-8 bg-white/5 backdrop-blur-sm rounded-lg p-6">
+              <h2 className="text-xl font-semibold mb-4 text-center">{category.title}</h2>
+              <Table>
+                <TableBody>
+                  {category.services.map((service) => (
+                    <TableRow key={service.id}>
+                      <TableCell className="text-white text-left">{service.title}</TableCell>
+                      <TableCell className="text-white text-right">от {service.price} ₽</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </section>
+          )
+        ))}
 
         <section className="max-w-4xl mx-auto mb-16">
           <h2 className="text-2xl font-semibold text-center mb-8">Галерея работ</h2>
