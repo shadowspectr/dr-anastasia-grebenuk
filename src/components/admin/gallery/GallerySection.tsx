@@ -31,8 +31,7 @@ export const GallerySection = () => {
         .insert([{
           title: '',
           description: '',
-          before_image: '',
-          after_image: ''
+          image: ''
         }])
         .select()
         .single();
