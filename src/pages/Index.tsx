@@ -62,6 +62,7 @@ const Index = () => {
 
       {/* Services Section */}
       <section className="max-w-2xl mx-auto mb-16 bg-white/5 backdrop-blur-sm rounded-lg p-6">
+        <h2 className="text-2xl font-semibold mb-8 text-center">Наши услуги</h2>
         {isLoading ? (
           <div className="text-center py-4">Загрузка услуг...</div>
         ) : (
@@ -70,16 +71,16 @@ const Index = () => {
               <h3 className="text-xl font-semibold mb-4">{category.title}</h3>
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>Услуга</TableHead>
-                    <TableHead className="text-right">Цена</TableHead>
+                  <TableRow className="border-white/10">
+                    <TableHead className="text-white">Услуга</TableHead>
+                    <TableHead className="text-right text-white">Цена</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {category.services?.map((service) => (
-                    <TableRow key={service.id}>
-                      <TableCell>{service.title}</TableCell>
-                      <TableCell className="text-right">{service.price}</TableCell>
+                    <TableRow key={service.id} className="border-white/10">
+                      <TableCell className="text-white">{service.title}</TableCell>
+                      <TableCell className="text-right text-white">{service.price}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
