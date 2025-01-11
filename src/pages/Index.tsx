@@ -1,237 +1,97 @@
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
-import { MessageCircle } from "lucide-react";
 import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
-import { Card, CardContent } from "@/components/ui/card";
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { EducationSection } from "@/components/EducationSection";
-import { useEffect, useState } from "react";
+
+interface Service {
+  id: string;
+  title: string;
+  price: string;
+  category_id: string;
+}
+
+interface Category {
+  id: string;
+  title: string;
+  services?: Service[];
+}
 
 const Index = () => {
-  const [mainPhoto, setMainPhoto] = useState("/lovable-uploads/3e533f6e-3c39-4db5-8fc0-7afaa4aeba30.png");
-
-  // Fetch services from Supabase
-  const { data: services = [] } = useQuery({
-    queryKey: ['services'],
+  // Fetch categories with their services
+  const { data: categories = [], isLoading } = useQuery({
+    queryKey: ['categories-with-services'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // First, fetch all categories
+      const { data: categoriesData, error: categoriesError } = await supabase
+        .from('service_categories')
+        .select('*')
+        .order('created_at', { ascending: true });
+
+      if (categoriesError) throw categoriesError;
+
+      // Then fetch all services
+      const { data: servicesData, error: servicesError } = await supabase
         .from('services')
         .select('*')
         .order('created_at', { ascending: true });
 
-      if (error) throw error;
-      return data;
-    }
-  });
+      if (servicesError) throw servicesError;
 
-  // Load main photo from localStorage
-  useEffect(() => {
-    const savedPhoto = localStorage.getItem('adminMainPhoto');
-    if (savedPhoto) {
-      setMainPhoto(savedPhoto);
-    }
-  }, []);
+      // Map services to their categories
+      const categoriesWithServices = categoriesData.map((category: Category) => ({
+        ...category,
+        services: servicesData.filter((service: Service) => service.category_id === category.id)
+      }));
 
-  // Fetch gallery items
-  const { data: galleryItems = [] } = useQuery({
-    queryKey: ['gallery'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('gallery')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      return data;
-    }
-  });
-
-  const { data: footerData } = useQuery({
-    queryKey: ['footer'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('footer_links')
-        .select('*')
-        .single();
-
-      if (error) throw error;
-      return data;
+      return categoriesWithServices;
     }
   });
 
   return (
-    <div className="min-h-screen bg-[#001a1a] bg-opacity-90 text-white relative">
-      <div 
-        className="absolute inset-0 bg-cover bg-center opacity-10"
-        style={{ backgroundImage: 'url("/lovable-uploads/a27874b1-e959-43d2-a635-06b486deb91d.png")' }}
-      />
-      
-      <div className="relative container mx-auto px-4 py-8">
-        <header className="mb-16">
-          <div className="flex justify-between items-center mb-8">
-            <img
-              src="/lovable-uploads/cd4553b0-6644-40cd-b20c-17dfe7481cc9.png"
-              alt="Anastasia Grebenuk Cosmetology"
-              className="w-[200px] md:w-[250px] transition-transform hover:scale-105"
-            />
-          </div>
-          
-          <div className="text-center">
-            <div className="relative inline-block">
-              <div className="w-[300px] h-[300px] md:w-[400px] md:h-[400px] rounded-full overflow-hidden border-4 border-[#004d40] shadow-[0_0_30px_rgba(0,77,64,0.3)] mx-auto">
-                <img
-                  src={mainPhoto}
-                  alt="Cosmetology Services"
-                  className="w-full h-full object-cover"
-                />
-              </div>
+    <div className="min-h-screen bg-[#121212] text-white">
+      <header className="py-4">
+        <h1 className="text-3xl font-bold text-center">Добро пожаловать</h1>
+      </header>
+
+      {/* Services Section */}
+      <section className="max-w-2xl mx-auto mb-16 bg-white/5 backdrop-blur-sm rounded-lg p-6">
+        {isLoading ? (
+          <div className="text-center py-4">Загрузка услуг...</div>
+        ) : (
+          categories.map((category) => (
+            <div key={category.id} className="mb-8 last:mb-0">
+              <h3 className="text-xl font-semibold mb-4">{category.title}</h3>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Услуга</TableHead>
+                    <TableHead className="text-right">Цена</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {category.services?.map((service) => (
+                    <TableRow key={service.id}>
+                      <TableCell>{service.title}</TableCell>
+                      <TableCell className="text-right">{service.price}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </div>
-            <h1 className="text-xl md:text-2xl font-light mt-4">
-              Косметолог с медицинским образованием
-            </h1>
-          </div>
-        </header>
+          ))
+        )}
+      </section>
 
-        <section className="max-w-2xl mx-auto mb-16 bg-white/5 backdrop-blur-sm rounded-lg p-6">
-          <Table>
-            <TableBody>
-              {services.map((service) => (
-                <TableRow key={service.id}>
-                  <TableCell className="text-white text-left">{service.title}</TableCell>
-                  <TableCell className="text-white text-right">от {service.price} ₽</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </section>
-
-        <section className="max-w-4xl mx-auto mb-16">
-          <h2 className="text-2xl font-semibold text-center mb-8">Галерея работ</h2>
-          <div className="relative">
-            <Carousel className="w-full">
-              <CarouselContent>
-                {galleryItems.map((item) => (
-                  <CarouselItem key={item.id}>
-                    <Card className="bg-white/5 backdrop-blur-sm border-none">
-                      <CardContent className="p-6">
-                        <div className="grid grid-cols-2 gap-4 mb-4">
-                          <div>
-                            <p className="text-sm text-white/60 mb-2">До</p>
-                            <img
-                              src={item.before_image}
-                              alt={`До - ${item.title}`}
-                              className="w-full h-48 object-cover rounded-lg"
-                            />
-                          </div>
-                          <div>
-                            <p className="text-sm text-white/60 mb-2">После</p>
-                            <img
-                              src={item.after_image}
-                              alt={`После - ${item.title}`}
-                              className="w-full h-48 object-cover rounded-lg"
-                            />
-                          </div>
-                        </div>
-                        <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
-                        <p className="text-white/80">{item.description}</p>
-                      </CardContent>
-                    </Card>
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <CarouselPrevious className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-12 bg-[#00332b] hover:bg-[#004d40] border-none text-white" />
-              <CarouselNext className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-12 bg-[#00332b] hover:bg-[#004d40] border-none text-white" />
-            </Carousel>
-            <div className="text-center mt-4 text-white/60">
-              <p className="md:hidden mb-2">Проведите пальцем для просмотра всех работ</p>
-              <p className="hidden md:block mb-2">Используйте стрелки для просмотра всех работ</p>
-              <div className="flex justify-center gap-2 mt-2">
-                {galleryItems.map((_, index) => (
-                  <div
-                    key={index}
-                    className="w-2 h-2 rounded-full bg-white/40"
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Education Section */}
-        <EducationSection />
-
-        <section className="text-center mb-16">
-          <a 
-            href="https://web.telegram.org/k/#@dr_anastasia_grebenuk"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Button 
-              size="lg"
-              className="bg-[#00332b] hover:bg-[#004d40] text-white px-12 py-6 text-xl rounded-full mb-4 border border-white/20"
-            >
-              Записаться
-            </Button>
-          </a>
-          <div className="flex items-center justify-center gap-2 text-lg">
-            <span>Записывайтесь через</span>
-            <a 
-              href="https://web.telegram.org/k/#@dr_anastasia_grebenuk"
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-[#4CAF50] hover:text-[#45a049] flex items-center gap-1"
-            >
-              Telegram <MessageCircle className="h-5 w-5" />
-            </a>
-          </div>
-        </section>
-
-        <footer className="text-center text-sm text-white/60">
-          <div className="mb-4">
-            <p>© 2024 Anastasia Grebenuk Cosmetology</p>
-            <p>Все права защищены</p>
-          </div>
-          <div className="flex justify-center gap-4">
-            {footerData?.instagram && (
-              <a 
-                href={footerData.instagram} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="hover:text-[#4CAF50] transition-colors"
-              >
-                Instagram
-              </a>
-            )}
-            {footerData?.whatsapp && (
-              <a 
-                href={`https://wa.me/${footerData.whatsapp}`} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="hover:text-[#4CAF50] transition-colors"
-              >
-                WhatsApp
-              </a>
-            )}
-            {footerData?.telegram && (
-              <a 
-                href={footerData.telegram} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="hover:text-[#4CAF50] transition-colors"
-              >
-                Telegram
-              </a>
-            )}
-          </div>
-        </footer>
-      </div>
+      <footer className="py-4">
+        <p className="text-center">© 2023 Ваш Сайт</p>
+      </footer>
     </div>
   );
 };
