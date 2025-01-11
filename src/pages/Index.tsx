@@ -121,23 +121,12 @@ const Index = () => {
                   <CarouselItem key={item.id}>
                     <Card className="bg-white/5 backdrop-blur-sm border-none">
                       <CardContent className="p-6">
-                        <div className="grid grid-cols-2 gap-4 mb-4">
-                          <div>
-                            <p className="text-sm text-white/60 mb-2">До</p>
-                            <img
-                              src={item.before_image}
-                              alt={`До - ${item.title}`}
-                              className="w-full h-48 object-cover rounded-lg"
-                            />
-                          </div>
-                          <div>
-                            <p className="text-sm text-white/60 mb-2">После</p>
-                            <img
-                              src={item.after_image}
-                              alt={`После - ${item.title}`}
-                              className="w-full h-48 object-cover rounded-lg"
-                            />
-                          </div>
+                        <div className="mb-4">
+                          <img
+                            src={item.image}
+                            alt={item.title}
+                            className="w-full h-96 object-cover rounded-lg"
+                          />
                         </div>
                         <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
                         <p className="text-white/80">{item.description}</p>
@@ -164,7 +153,6 @@ const Index = () => {
           </div>
         </section>
 
-        {/* Education Section */}
         <EducationSection />
 
         <section className="text-center mb-16">

@@ -144,27 +144,24 @@ export type Database = {
       }
       gallery: {
         Row: {
-          after_image: string
-          before_image: string
           created_at: string
           description: string
           id: string
+          image: string
           title: string
         }
         Insert: {
-          after_image: string
-          before_image: string
           created_at?: string
           description: string
           id?: string
+          image?: string
           title: string
         }
         Update: {
-          after_image?: string
-          before_image?: string
           created_at?: string
           description?: string
           id?: string
+          image?: string
           title?: string
         }
         Relationships: []

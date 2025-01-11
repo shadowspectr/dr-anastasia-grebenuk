@@ -18,7 +18,7 @@ interface GalleryItemFormProps {
 export const GalleryItemForm = ({ item, onDelete }: GalleryItemFormProps) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [uploadingImage, setUploadingImage] = useState<{ type: 'before' | 'after' } | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   const updateGalleryMutation = useMutation({
     mutationFn: async ({ field, value }: { field: keyof GalleryItem; value: string }) => {
@@ -42,9 +42,9 @@ export const GalleryItemForm = ({ item, onDelete }: GalleryItemFormProps) => {
     }
   });
 
-  const handleImageUpload = async (file: File, type: 'before' | 'after') => {
+  const handleImageUpload = async (file: File) => {
     try {
-      setUploadingImage({ type });
+      setUploadingImage(true);
 
       // Validate file type
       const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml', 'image/webp', 'image/heic'];
@@ -58,7 +58,7 @@ export const GalleryItemForm = ({ item, onDelete }: GalleryItemFormProps) => {
       }
 
       const fileExt = file.name.split('.').pop();
-      const fileName = `${item.id}-${type}.${fileExt}`;
+      const fileName = `${item.id}.${fileExt}`;
 
       const { error: uploadError } = await supabase.storage
         .from('gallery')
@@ -71,13 +71,13 @@ export const GalleryItemForm = ({ item, onDelete }: GalleryItemFormProps) => {
         .getPublicUrl(fileName);
 
       await updateGalleryMutation.mutateAsync({
-        field: type === 'before' ? 'before_image' : 'after_image',
+        field: 'image',
         value: publicUrl
       });
 
       toast({
-        title: "Изображение загружено",
-        description: `${type === 'before' ? 'До' : 'После'} изображение успешно загружено`,
+        title: "Успешно",
+        description: "Изображение успешно загружено",
       });
     } catch (error) {
       toast({
@@ -87,7 +87,7 @@ export const GalleryItemForm = ({ item, onDelete }: GalleryItemFormProps) => {
       });
       console.error('Error uploading image:', error);
     } finally {
-      setUploadingImage(null);
+      setUploadingImage(false);
     }
   };
 
@@ -117,20 +117,13 @@ export const GalleryItemForm = ({ item, onDelete }: GalleryItemFormProps) => {
           />
         </div>
       </div>
-      <div className="grid md:grid-cols-2 gap-4 mb-4">
+      <div className="mb-4">
         <ImageUpload
-          label="Фото «До»"
-          imageUrl={item.before_image}
-          isUploading={uploadingImage?.type === 'before'}
-          onUpload={(file) => handleImageUpload(file, 'before')}
-          inputId={`before-${item.id}`}
-        />
-        <ImageUpload
-          label="Фото «После»"
-          imageUrl={item.after_image}
-          isUploading={uploadingImage?.type === 'after'}
-          onUpload={(file) => handleImageUpload(file, 'after')}
-          inputId={`after-${item.id}`}
+          label="Фото работы"
+          imageUrl={item.image}
+          isUploading={uploadingImage}
+          onUpload={handleImageUpload}
+          inputId={`image-${item.id}`}
         />
       </div>
       <Button
