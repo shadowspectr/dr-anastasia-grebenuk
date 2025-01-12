@@ -87,20 +87,18 @@ export const MainPhotoSection = () => {
             <input
               type="file"
               id="main-photo-upload"
-              className="hidden"
-              accept=".png,.jpg,.jpeg,.svg,.webp,.heic"
               onChange={handlePhotoUpload}
+              accept=".png,.jpg,.jpeg,.svg,.webp,.heic"
               disabled={isUploading}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
             />
-            <Label htmlFor="main-photo-upload" className="cursor-pointer">
-              <Button 
-                className="bg-[#004d40] hover:bg-[#00695c]"
-                disabled={isUploading}
-              >
-                <Upload className="mr-2 h-4 w-4" />
-                {isUploading ? "Загрузка..." : "Загрузить новое фото"}
-              </Button>
-            </Label>
+            <Button 
+              className="bg-[#004d40] hover:bg-[#00695c] relative z-0"
+              disabled={isUploading}
+            >
+              <Upload className="mr-2 h-4 w-4" />
+              {isUploading ? "Загрузка..." : "Загрузить новое фото"}
+            </Button>
           </div>
         </div>
       </CardContent>
