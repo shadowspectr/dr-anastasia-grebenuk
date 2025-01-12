@@ -191,7 +191,6 @@ export type Database = {
           description: string
           icon: string
           id: string
-          images: string[] | null
           price: string
           title: string
         }
@@ -201,7 +200,6 @@ export type Database = {
           description: string
           icon: string
           id?: string
-          images?: string[] | null
           price: string
           title: string
         }
@@ -211,7 +209,6 @@ export type Database = {
           description?: string
           icon?: string
           id?: string
-          images?: string[] | null
           price?: string
           title?: string
         }

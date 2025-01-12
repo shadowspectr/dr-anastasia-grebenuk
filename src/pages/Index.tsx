@@ -26,7 +26,6 @@ interface Service {
   title: string;
   price: string;
   category_id: string | null;
-  images: string[];
 }
 
 interface Category {
@@ -139,7 +138,7 @@ const Index = () => {
         </header>
 
         {/* Services Section with Categories Dropdown */}
-        <div className="flex items-center justify-between mb-4 max-w-4xl mx-auto">
+        <div className="flex items-center justify-between mb-4 max-w-2xl mx-auto">
           <h2 className="text-2xl font-semibold">Услуги</h2>
           <Select value={selectedCategory} onValueChange={setSelectedCategory}>
             <SelectTrigger className="w-[180px] bg-[#002626] border-[#004d40]">
@@ -158,41 +157,18 @@ const Index = () => {
 
         {filteredCategories.map((category) => (
           category.services && category.services.length > 0 && (
-            <section key={category.id} className="max-w-4xl mx-auto mb-8">
+            <section key={category.id} className="max-w-2xl mx-auto mb-8 bg-white/5 backdrop-blur-sm rounded-lg p-6">
               <h2 className="text-xl font-semibold mb-4 text-center">{category.title}</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {category.services.map((service) => (
-                  <Card key={service.id} className="bg-white/5 backdrop-blur-sm border-none overflow-hidden">
-                    <CardContent className="p-0">
-                      {service.images && service.images.length > 0 ? (
-                        <Carousel className="w-full">
-                          <CarouselContent>
-                            {service.images.map((image, index) => (
-                              <CarouselItem key={index}>
-                                <div className="relative aspect-square">
-                                  <img
-                                    src={image}
-                                    alt={`${service.title} ${index + 1}`}
-                                    className="w-full h-full object-cover"
-                                  />
-                                </div>
-                              </CarouselItem>
-                            ))}
-                          </CarouselContent>
-                          <CarouselPrevious className="hidden md:flex absolute left-2 top-1/2 -translate-y-1/2 bg-[#00332b]/80 hover:bg-[#004d40] border-none text-white" />
-                          <CarouselNext className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 bg-[#00332b]/80 hover:bg-[#004d40] border-none text-white" />
-                        </Carousel>
-                      ) : (
-                        <div className="aspect-square bg-white/10" />
-                      )}
-                      <div className="p-4">
-                        <h3 className="text-lg font-semibold mb-2">{service.title}</h3>
-                        <p className="text-white/80">от {service.price} ₽</p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+              <Table>
+                <TableBody>
+                  {category.services.map((service) => (
+                    <TableRow key={service.id}>
+                      <TableCell className="text-white text-left">{service.title}</TableCell>
+                      <TableCell className="text-white text-right">от {service.price} ₽</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </section>
           )
         ))}
