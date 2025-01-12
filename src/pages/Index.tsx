@@ -13,6 +13,13 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { EducationSection } from "@/components/EducationSection";
 import { useEffect, useState } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Service {
   id: string;
@@ -29,6 +36,7 @@ interface Category {
 
 const Index = () => {
   const [mainPhoto, setMainPhoto] = useState("/lovable-uploads/3e533f6e-3c39-4db5-8fc0-7afaa4aeba30.png");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
   // Fetch categories and services
   const { data: categories = [] } = useQuery({
@@ -91,6 +99,11 @@ const Index = () => {
     }
   }, []);
 
+  // Filter categories based on selection
+  const filteredCategories = selectedCategory === "all" 
+    ? categories 
+    : categories.filter(category => category.id === selectedCategory);
+
   return (
     <div className="min-h-screen bg-[#001a1a] bg-opacity-90 text-white relative">
       <div 
@@ -124,8 +137,25 @@ const Index = () => {
           </div>
         </header>
 
-        {/* Services Section with Categories */}
-        {categories.map((category) => (
+        {/* Services Section with Categories Dropdown */}
+        <div className="flex items-center justify-between mb-4 max-w-2xl mx-auto">
+          <h2 className="text-2xl font-semibold">Услуги</h2>
+          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+            <SelectTrigger className="w-[180px] bg-[#002626] border-[#004d40]">
+              <SelectValue placeholder="Все категории" />
+            </SelectTrigger>
+            <SelectContent className="bg-[#002626] border-[#004d40]">
+              <SelectItem value="all">Все категории</SelectItem>
+              {categories.map((category) => (
+                <SelectItem key={category.id} value={category.id}>
+                  {category.title}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {filteredCategories.map((category) => (
           category.services && category.services.length > 0 && (
             <section key={category.id} className="max-w-2xl mx-auto mb-8 bg-white/5 backdrop-blur-sm rounded-lg p-6">
               <h2 className="text-xl font-semibold mb-4 text-center">{category.title}</h2>
