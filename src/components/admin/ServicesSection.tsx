@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Upload } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,6 +13,7 @@ interface Service {
   title: string;
   price: string;
   category_id: string | null;
+  images: string[];
 }
 
 interface Category {
@@ -70,13 +71,6 @@ export const ServicesSection = () => {
         title: "Категория добавлена",
         description: "Новая категория успешно добавлена",
       });
-    },
-    onError: (error) => {
-      toast({
-        title: "Ошибка",
-        description: "Не удалось добавить категорию",
-        variant: "destructive",
-      });
     }
   });
 
@@ -95,13 +89,6 @@ export const ServicesSection = () => {
       toast({
         title: "Категория удалена",
         description: "Категория успешно удалена",
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: "Ошибка",
-        description: "Не удалось удалить категорию",
-        variant: "destructive",
       });
     }
   });
@@ -131,7 +118,8 @@ export const ServicesSection = () => {
           price: '',
           category_id: categoryId,
           description: '',
-          icon: ''
+          icon: '',
+          images: []
         })
         .select()
         .single();
@@ -167,7 +155,7 @@ export const ServicesSection = () => {
   });
 
   const updateServiceMutation = useMutation({
-    mutationFn: async ({ id, field, value }: { id: string; field: keyof Service; value: string }) => {
+    mutationFn: async ({ id, field, value }: { id: string; field: keyof Service; value: string | string[] }) => {
       const { error } = await supabase
         .from('services')
         .update({ [field]: value })
@@ -179,6 +167,45 @@ export const ServicesSection = () => {
       queryClient.invalidateQueries({ queryKey: ['services'] });
     }
   });
+
+  // Handle image upload
+  const handleImageUpload = async (serviceId: string, file: File) => {
+    try {
+      const fileExt = file.name.split('.').pop();
+      const filePath = `${crypto.randomUUID()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('gallery')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('gallery')
+        .getPublicUrl(filePath);
+
+      const service = services.find(s => s.id === serviceId);
+      if (service) {
+        const updatedImages = [...(service.images || []), publicUrl];
+        updateServiceMutation.mutate({
+          id: serviceId,
+          field: 'images',
+          value: updatedImages
+        });
+      }
+
+      toast({
+        title: "Изображение загружено",
+        description: "Изображение успешно добавлено к услуге",
+      });
+    } catch (error) {
+      toast({
+        title: "Ошибка",
+        description: "Не удалось загрузить изображение",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <Card className="bg-white/5 border-none">
@@ -245,6 +272,32 @@ export const ServicesSection = () => {
                               })}
                               className="bg-white/10 border-white/20 text-white"
                             />
+                          </div>
+                          <div className="w-40">
+                            <Label className="text-white">Изображения</Label>
+                            <Input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  handleImageUpload(service.id, file);
+                                }
+                              }}
+                              className="bg-white/10 border-white/20 text-white"
+                            />
+                            {service.images && service.images.length > 0 && (
+                              <div className="mt-2 flex flex-wrap gap-2">
+                                {service.images.map((image, index) => (
+                                  <img
+                                    key={index}
+                                    src={image}
+                                    alt={`Service ${index + 1}`}
+                                    className="w-16 h-16 object-cover rounded"
+                                  />
+                                ))}
+                              </div>
+                            )}
                           </div>
                           <Button
                             variant="destructive"
