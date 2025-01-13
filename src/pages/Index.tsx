@@ -116,7 +116,7 @@ const Index = () => {
       
       <div className="relative container mx-auto px-4 py-8">
         <header className="mb-16">
-          <div className="flex justify-between items-center mb-8">
+          <div className="flex justify-center items-center mb-8">
             <img
               src="/lovable-uploads/cd4553b0-6644-40cd-b20c-17dfe7481cc9.png"
               alt="Anastasia Grebenuk Cosmetology"
