@@ -139,6 +139,14 @@ const Index = () => {
               Врач дерматовенеролог- косметолог <br/>
               Более 100 красивых и натуральных губ 👄💉<br/>
               📍г.Донецк | г. Макеевка <br/>
+              <a
+                  href="https://t.me/dr_anastasia_grebenuk"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="relative after:content-[''] after:absolute after:left-0 after:bottom-[-4px] after:w-0 after:h-[4px] after:bg-white after:transition-all after:duration-300 hover:after:w-full"
+              >
+                Для записи
+              </a> 👈
             </h1>
           </div>
         </header>
@@ -224,7 +232,7 @@ const Index = () => {
 
         <section className="text-center mb-16">
           <a 
-            href="https://web.telegram.org/k/#@dr_anastasia_grebenuk"
+            href="https://t.me/dr_anastasia_grebenuk"
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -238,7 +246,7 @@ const Index = () => {
           <div className="flex items-center justify-center gap-2 text-lg">
             <span>Записывайтесь через</span>
             <a 
-              href="https://web.telegram.org/k/#@dr_anastasia_grebenuk"
+              href="https://t.me/dr_anastasia_grebenuk"
               target="_blank" 
               rel="noopener noreferrer"
               className="text-[#4CAF50] hover:text-[#45a049] flex items-center gap-1"
