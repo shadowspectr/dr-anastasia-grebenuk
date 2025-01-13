@@ -21,6 +21,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+
+
+
 interface Service {
   id: string;
   title: string;
@@ -35,7 +38,7 @@ interface Category {
 }
 
 const Index = () => {
-  const [mainPhoto, setMainPhoto] = useState("/lovable-uploads/3e533f6e-3c39-4db5-8fc0-7afaa4aeba30.png");
+  const [mainPhoto, setMainPhoto] = useState("/img/main_photo.jpg");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
   // Fetch categories and services
@@ -164,7 +167,7 @@ const Index = () => {
                   {category.services.map((service) => (
                     <TableRow key={service.id}>
                       <TableCell className="text-white text-left">{service.title}</TableCell>
-                      <TableCell className="text-white text-right">от {service.price} ₽</TableCell>
+                      <TableCell className="text-white text-right">{service.price} ₽</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
