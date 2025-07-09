@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { AboutSection } from "@/components/AboutSection";
 import { TeamSection } from "@/components/TeamSection";
 import { ServicesSection } from "@/components/ServicesSection";
@@ -11,15 +12,19 @@ import { ContactsSection } from "@/components/ContactsSection";
 
 
 const Index = () => {
-  const [mainPhoto, setMainPhoto] = useState("/lovable-uploads/731c0a35-be6b-42db-8dfe-5c8ee32e6d65.png");
-
-  // Load main photo from localStorage
-  useEffect(() => {
-    const savedPhoto = localStorage.getItem('adminMainPhoto');
-    if (savedPhoto) {
-      setMainPhoto(savedPhoto);
+  // Fetch main content from database
+  const { data: mainContent } = useQuery({
+    queryKey: ['mainContent'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('main_content')
+        .select('*')
+        .single();
+      
+      if (error) throw error;
+      return data;
     }
-  }, []);
+  });
 
   return (
     <div className="min-h-screen bg-background">
@@ -39,9 +44,9 @@ const Index = () => {
           {/* Team Photo */}
           <div className="mb-8">
             <img
-              src={mainPhoto}
+              src={mainContent?.main_photo_url || "/lovable-uploads/731c0a35-be6b-42db-8dfe-5c8ee32e6d65.png"}
               alt="Команда специалистов"
-              className="w-full max-w-md mx-auto rounded-3xl shadow-lg"
+              className="w-full max-w-md mx-auto rounded-3xl shadow-lg transition-all duration-300 hover:scale-105"
             />
           </div>
           

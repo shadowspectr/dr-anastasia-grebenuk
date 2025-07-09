@@ -42,6 +42,10 @@
     --text-elegant: 30 8% 25%;
     --text-soft: 30 8% 45%;
 
+    /* Animation variables */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-spring: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
     --sidebar-background: 30 20% 98%;
     --sidebar-foreground: 30 8% 25%;
     --sidebar-primary: 30 25% 70%;

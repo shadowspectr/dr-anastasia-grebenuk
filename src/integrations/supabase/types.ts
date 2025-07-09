@@ -123,6 +123,33 @@ export type Database = {
           },
         ]
       }
+      faq: {
+        Row: {
+          answer: string
+          created_at: string
+          id: string
+          question: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          answer: string
+          created_at?: string
+          id?: string
+          question: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          answer?: string
+          created_at?: string
+          id?: string
+          question?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       footer_links: {
         Row: {
           created_at: string
@@ -168,6 +195,36 @@ export type Database = {
           id?: string
           image?: string
           title?: string
+        }
+        Relationships: []
+      }
+      main_content: {
+        Row: {
+          about_advantages: string[]
+          about_description: string
+          about_title: string
+          created_at: string
+          id: string
+          main_photo_url: string
+          updated_at: string
+        }
+        Insert: {
+          about_advantages?: string[]
+          about_description?: string
+          about_title?: string
+          created_at?: string
+          id?: string
+          main_photo_url?: string
+          updated_at?: string
+        }
+        Update: {
+          about_advantages?: string[]
+          about_description?: string
+          about_title?: string
+          created_at?: string
+          id?: string
+          main_photo_url?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -229,6 +286,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      team_members: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          name: string
+          photo_url: string
+          position: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string
+          id?: string
+          name: string
+          photo_url?: string
+          position: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          name?: string
+          photo_url?: string
+          position?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
       }
     }
     Views: {

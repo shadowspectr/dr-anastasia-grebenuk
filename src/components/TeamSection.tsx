@@ -1,27 +1,24 @@
 import { useState } from "react";
 import { ChevronRight, ChevronLeft } from "lucide-react";
-
-interface TeamMember {
-  id: string;
-  name: string;
-  position: string;
-  description: string;
-  photo: string;
-}
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const TeamSection = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   
-  // Данные команды (в реальном приложении будут браться из базы данных)
-  const teamMembers: TeamMember[] = [
-    {
-      id: "1",
-      name: "Ким Алина Алексеевна",
-      position: "Врач, орд. дерматовенеролог, косметолог",
-      description: "ТОП-специалист и преподаватель, основательница клиники «RESIDENCE». В сфере инъекционной косметологии 4 года. Обладает всеми современными безопасными техниками для гармонизации лица. Создала уникальный косметический центр с лучшими специалистами в просто настоящий женский рай.",
-      photo: "/lovable-uploads/731c0a35-be6b-42db-8dfe-5c8ee32e6d65.png"
+  // Fetch team members from database
+  const { data: teamMembers = [] } = useQuery({
+    queryKey: ['teamMembers'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('team_members')
+        .select('*')
+        .order('sort_order', { ascending: true });
+      
+      if (error) throw error;
+      return data;
     }
-  ];
+  });
 
   const nextMember = () => {
     setCurrentIndex((prev) => (prev + 1) % teamMembers.length);
@@ -32,13 +29,13 @@ const TeamSection = () => {
   };
 
   return (
-    <section className="py-16 px-4">
+    <section className="py-16 px-4 animate-fade-in">
       <div className="max-w-lg mx-auto">
-        <h2 className="text-2xl font-light text-center mb-8 text-foreground">
+        <h2 className="text-2xl font-light text-center mb-8 text-foreground transition-all duration-300 hover:scale-105">
           КОМАНДА<br/>СПЕЦИАЛИСТОВ
         </h2>
         
-        <div className="bg-gradient-to-br from-primary/20 to-accent/20 rounded-3xl p-6 relative">
+        <div className="bg-gradient-to-br from-primary/20 to-accent/20 rounded-3xl p-6 relative hover:shadow-lg transition-all duration-300 hover:scale-[1.02]">
           {teamMembers.map((member, index) => (
             <div 
               key={member.id}
@@ -49,9 +46,9 @@ const TeamSection = () => {
               <div className="flex gap-4 mb-4">
                 <div className="w-24 h-24 rounded-2xl overflow-hidden bg-black flex-shrink-0">
                   <img 
-                    src={member.photo} 
+                    src={member.photo_url} 
                     alt={member.name}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
                   />
                 </div>
                 

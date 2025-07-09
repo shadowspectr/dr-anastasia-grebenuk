@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { StrictMode } from "react";
 import Index from "./pages/Index";
 import AdminPanel from "./pages/AdminPanel";
+import AllWorks from "./pages/AllWorks";
 
 const App = () => {
   // Move QueryClient creation inside component
@@ -28,6 +29,7 @@ const App = () => {
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/admin" element={<AdminPanel />} />
+              <Route path="/works" element={<AllWorks />} />
             </Routes>
           </BrowserRouter>
         </TooltipProvider>

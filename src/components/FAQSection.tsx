@@ -1,52 +1,41 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const FAQSection = () => {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
-  const faqs = [
-    {
-      question: "Все специалисты имеют соответствующую квалификацию?",
-      answer: "Да, все наши специалисты имеют медицинское образование и сертификацию по соответствующим направлениям косметологии."
-    },
-    {
-      question: "Могу ли я попасть на консультацию?",
-      answer: "Конечно! Мы проводим консультации для всех клиентов, чтобы подобрать оптимальный план процедур."
-    },
-    {
-      question: "Быть красивой – это больно?",
-      answer: "Мы используем современные методы обезболивания и щадящие техники, чтобы процедуры были максимально комфортными."
-    },
-    {
-      question: "Массаж лица и тела проводится курсом?",
-      answer: "Да, для достижения максимального эффекта рекомендуется курсовое прохождение массажных процедур."
-    },
-    {
-      question: "Можно ли приобрести у вас косметику для домашнего ухода?",
-      answer: "Да, у нас есть профессиональная косметика для домашнего использования от проверенных брендов."
-    },
-    {
-      question: "Есть ли у вас подарочные сертификаты и абонементы?",
-      answer: "Да, мы предлагаем подарочные сертификаты на любую сумму и абонементы на популярные процедуры."
+  // Fetch FAQ from database
+  const { data: faqs = [] } = useQuery({
+    queryKey: ['faq'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('faq')
+        .select('*')
+        .order('sort_order', { ascending: true });
+      
+      if (error) throw error;
+      return data;
     }
-  ];
+  });
 
   const toggleFAQ = (index: number) => {
     setExpandedIndex(expandedIndex === index ? null : index);
   };
 
   return (
-    <section className="py-16 px-4">
+    <section className="py-16 px-4 animate-fade-in">
       <div className="max-w-lg mx-auto">
-        <h2 className="text-2xl font-light text-center mb-8 text-foreground">
+        <h2 className="text-2xl font-light text-center mb-8 text-foreground transition-all duration-300 hover:scale-105">
           ЧАСТО ЗАДАВАЕМЫЕ<br/>ВОПРОСЫ
         </h2>
         
         <div className="space-y-4">
           {faqs.map((faq, index) => (
-            <div key={index}>
+            <div key={faq.id} className="animate-slide-in-right" style={{ animationDelay: `${index * 0.1}s` }}>
               <button
                 onClick={() => toggleFAQ(index)}
-                className="w-full bg-gradient-to-r from-primary/10 to-accent/10 rounded-full px-6 py-4 text-left hover:from-primary/20 hover:to-accent/20 transition-all duration-300 border border-primary/20"
+                className="w-full bg-gradient-to-r from-primary/10 to-accent/10 rounded-full px-6 py-4 text-left hover:from-primary/20 hover:to-accent/20 transition-all duration-300 border border-primary/20 hover:scale-[1.02] hover:shadow-md"
               >
                 <span className="text-sm text-foreground font-medium">
                   {index + 1}. {faq.question}
