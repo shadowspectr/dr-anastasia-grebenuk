@@ -7,59 +7,39 @@ import { ServicesSection } from "@/components/ServicesSection";
 import { WorksSection } from "@/components/WorksSection";
 import { FAQSection } from "@/components/FAQSection";
 import { ContactsSection } from "@/components/ContactsSection";
-
-
-
-
 const Index = () => {
   // Fetch main content from database
-  const { data: mainContent } = useQuery({
+  const {
+    data: mainContent
+  } = useQuery({
     queryKey: ['mainContent'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('main_content')
-        .select('*')
-        .single();
-      
+      const {
+        data,
+        error
+      } = await supabase.from('main_content').select('*').single();
       if (error) throw error;
       return data;
     }
   });
-
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       {/* Hero Section */}
       <section className="py-8 px-4">
         <div className="max-w-lg mx-auto text-center">
           {/* Logo */}
           <div className="mb-8">
-            <h1 className="text-3xl font-light text-foreground mb-2 tracking-wide">
-              RESIDENCE
-            </h1>
-            <p className="text-lg font-light text-muted-foreground italic">
-              by Alya Kim
-            </p>
+            <h1 className="text-3xl font-light text-foreground mb-2 tracking-wide">Dr. Anastasiya Grebenuk</h1>
+            
           </div>
           
           {/* Team Photo */}
           <div className="mb-8">
-            <img
-              src={mainContent?.main_photo_url || "/lovable-uploads/731c0a35-be6b-42db-8dfe-5c8ee32e6d65.png"}
-              alt="Команда специалистов"
-              className="w-full max-w-md mx-auto rounded-3xl shadow-lg transition-all duration-300 hover:scale-105"
-            />
+            <img src={mainContent?.main_photo_url || "/lovable-uploads/731c0a35-be6b-42db-8dfe-5c8ee32e6d65.png"} alt="Команда специалистов" className="w-full max-w-md mx-auto rounded-3xl shadow-lg transition-all duration-300 hover:scale-105" />
           </div>
           
           {/* CTA Button */}
-          <Button 
-            className="w-full max-w-sm bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-foreground font-medium py-6 rounded-full text-lg shadow-lg border-0"
-            asChild
-          >
-            <a 
-              href="https://t.me/dr_anastasia_grebenuk"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
+          <Button className="w-full max-w-sm bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-foreground font-medium py-6 rounded-full text-lg shadow-lg border-0" asChild>
+            <a href="https://t.me/dr_anastasia_grebenuk" target="_blank" rel="noopener noreferrer">
               ЗАПИСАТЬСЯ
             </a>
           </Button>
@@ -83,8 +63,6 @@ const Index = () => {
 
       {/* Contacts Section */}
       <ContactsSection />
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
