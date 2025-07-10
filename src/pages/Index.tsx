@@ -28,7 +28,7 @@ const Index = () => {
         <div className="max-w-lg mx-auto text-center">
           {/* Logo */}
           <div className="mb-8">
-            <h1 className="text-3xl font-light text-foreground mb-2 tracking-wide">Dr. Anastasiya Grebenuk</h1>
+            <h1 className="text-3xl font-light text-foreground mb-2 tracking-wide">Dr. Anastasia Grebenuk</h1>
             
           </div>
           
