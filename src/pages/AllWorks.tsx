@@ -41,18 +41,18 @@ const AllWorks = () => {
           </div>
 
           {/* Works Grid */}
-          <div className="space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-6">
             {galleryItems.map((item, index) => (
               <div 
                 key={item.id} 
                 className="bg-card rounded-3xl overflow-hidden shadow-sm border border-border hover:shadow-lg transition-all duration-300 hover:scale-[1.02] animate-fade-in"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <div className="aspect-square overflow-hidden">
+                <div className="relative w-full" style={{ aspectRatio: '4/3' }}>
                   <img
                     src={item.image}
                     alt={item.title}
-                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                    className="w-full h-full object-cover object-center hover:scale-105 transition-transform duration-300"
                   />
                 </div>
                 <div className="p-4">

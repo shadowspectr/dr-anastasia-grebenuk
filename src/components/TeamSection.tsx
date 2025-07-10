@@ -44,11 +44,12 @@ const TeamSection = () => {
               }`}
             >
               <div className="flex gap-4 mb-4">
-                <div className="w-24 h-24 rounded-2xl overflow-hidden bg-black flex-shrink-0">
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden bg-black flex-shrink-0 relative">
                   <img 
                     src={member.photo_url} 
                     alt={member.name}
-                    className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
+                    className="w-full h-full object-cover object-center transition-transform duration-300 hover:scale-110"
+                    style={{ aspectRatio: '1/1' }}
                   />
                 </div>
                 

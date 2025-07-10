@@ -47,11 +47,13 @@ export const EducationSection = () => {
               {educationData.photos.map((photo) => (
                 <CarouselItem key={photo.id}>
                   <div className="p-1">
-                    <img
-                      src={photo.photo_url}
-                      alt="Education"
-                      className="w-full h-64 md:h-96 object-cover rounded-lg"
-                    />
+                    <div className="relative w-full" style={{ aspectRatio: '16/9' }}>
+                      <img
+                        src={photo.photo_url}
+                        alt="Education"
+                        className="w-full h-full object-cover object-center rounded-lg"
+                      />
+                    </div>
                   </div>
                 </CarouselItem>
               ))}

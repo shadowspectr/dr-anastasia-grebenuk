@@ -150,14 +150,16 @@ export const EducationSection = () => {
 
       <div>
         <h3 className="text-lg font-medium mb-2 text-white">Фотографии</h3>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-4">
           {educationData?.photos?.map((photo) => (
             <div key={photo.id} className="relative group">
-              <img
-                src={photo.photo_url}
-                alt="Education"
-                className="w-full h-40 object-cover rounded-lg"
-              />
+              <div className="relative w-full" style={{ aspectRatio: '4/3' }}>
+                <img
+                  src={photo.photo_url}
+                  alt="Education"
+                  className="w-full h-full object-cover object-center rounded-lg"
+                />
+              </div>
               <Button
                 variant="destructive"
                 size="icon"
