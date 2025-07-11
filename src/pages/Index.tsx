@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { Link } from "react-router-dom";
 import { AboutSection } from "@/components/AboutSection";
 import { TeamSection } from "@/components/TeamSection";
 import { ServicesSection } from "@/components/ServicesSection";
@@ -39,9 +40,9 @@ const Index = () => {
           
           {/* CTA Button */}
           <Button className="w-full max-w-sm bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-foreground font-medium py-6 rounded-full text-lg shadow-lg border-0" asChild>
-            <a href="/booking">
+            <Link to="/booking">
               ЗАПИСАТЬСЯ
-            </a>
+            </Link>
           </Button>
         </div>
       </section>
