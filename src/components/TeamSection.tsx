@@ -43,8 +43,8 @@ const TeamSection = () => {
                 index === currentIndex ? 'opacity-100' : 'opacity-0 absolute top-8 left-8 right-8'
               }`}
             >
-              <div className="flex flex-col items-center text-center mb-6">
-                <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-3xl overflow-hidden bg-gradient-to-br from-primary/30 to-accent/30 p-1 mb-4 shadow-xl">
+              <div className="flex gap-6 items-start">
+                <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-3xl overflow-hidden bg-gradient-to-br from-primary/30 to-accent/30 p-1 shadow-xl flex-shrink-0">
                   <div className="w-full h-full rounded-3xl overflow-hidden bg-black relative">
                     <img 
                       src={member.photo_url} 
@@ -55,19 +55,18 @@ const TeamSection = () => {
                   </div>
                 </div>
                 
-                <div className="space-y-2">
-                  <h3 className="font-semibold text-foreground text-lg mb-1">
+                <div className="flex-1 text-left">
+                  <h3 className="font-semibold text-foreground text-lg mb-2">
                     {member.name}
                   </h3>
-                  <p className="text-sm text-primary font-medium">
+                  <p className="text-sm text-primary font-medium mb-3">
                     {member.position}
+                  </p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {member.description}
                   </p>
                 </div>
               </div>
-              
-              <p className="text-sm text-muted-foreground leading-relaxed text-center max-w-sm mx-auto">
-                {member.description}
-              </p>
             </div>
           ))}
           
