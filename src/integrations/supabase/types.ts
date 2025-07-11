@@ -18,23 +18,35 @@ export type Database = {
         Row: {
           appointment_time: string
           client_name: string
+          client_phone: string | null
+          client_telegram_id: number | null
           created_at: string
           id: string
+          reminded: boolean | null
           service_id: string | null
+          status: string | null
         }
         Insert: {
           appointment_time: string
           client_name: string
+          client_phone?: string | null
+          client_telegram_id?: number | null
           created_at?: string
           id?: string
+          reminded?: boolean | null
           service_id?: string | null
+          status?: string | null
         }
         Update: {
           appointment_time?: string
           client_name?: string
+          client_phone?: string | null
+          client_telegram_id?: number | null
           created_at?: string
           id?: string
+          reminded?: boolean | null
           service_id?: string | null
+          status?: string | null
         }
         Relationships: [
           {
@@ -156,6 +168,8 @@ export type Database = {
           id: string
           instagram: string
           telegram: string
+          telegram_channel: string
+          vkontakte: string
           whatsapp: string
         }
         Insert: {
@@ -163,6 +177,8 @@ export type Database = {
           id?: string
           instagram?: string
           telegram?: string
+          telegram_channel?: string
+          vkontakte?: string
           whatsapp?: string
         }
         Update: {
@@ -170,6 +186,8 @@ export type Database = {
           id?: string
           instagram?: string
           telegram?: string
+          telegram_channel?: string
+          vkontakte?: string
           whatsapp?: string
         }
         Relationships: []

@@ -35,13 +35,21 @@ const ContactsSection = () => {
             </div>
           </div>
           
-          <div className="flex gap-4">
-            {footerData?.instagram && <a href={footerData.instagram} target="_blank" rel="noopener noreferrer" className="flex-1 bg-gradient-to-r from-primary/20 to-accent/20 rounded-full py-3 px-6 text-center hover:from-primary/30 hover:to-accent/30 transition-all duration-300 border border-primary/20">
-                <span className="text-foreground font-medium">INSTAGRAM</span>
+          <div className="grid grid-cols-2 gap-3">
+            {footerData?.instagram && <a href={footerData.instagram} target="_blank" rel="noopener noreferrer" className="bg-gradient-to-r from-primary/20 to-accent/20 rounded-full py-3 px-4 text-center hover:from-primary/30 hover:to-accent/30 transition-all duration-300 border border-primary/20">
+                <span className="text-foreground font-medium text-sm">INSTAGRAM</span>
               </a>}
             
-            {footerData?.whatsapp && <a href={`https://wa.me/${footerData.whatsapp}`} target="_blank" rel="noopener noreferrer" className="flex-1 bg-gradient-to-r from-primary/20 to-accent/20 rounded-full py-3 px-6 text-center hover:from-primary/30 hover:to-accent/30 transition-all duration-300 border border-primary/20">
-                <span className="text-foreground font-medium">WHATSAPP</span>
+            {footerData?.whatsapp && <a href={`https://wa.me/${footerData.whatsapp}`} target="_blank" rel="noopener noreferrer" className="bg-gradient-to-r from-primary/20 to-accent/20 rounded-full py-3 px-4 text-center hover:from-primary/30 hover:to-accent/30 transition-all duration-300 border border-primary/20">
+                <span className="text-foreground font-medium text-sm">WHATSAPP</span>
+              </a>}
+
+            {footerData?.vkontakte && <a href={footerData.vkontakte} target="_blank" rel="noopener noreferrer" className="bg-gradient-to-r from-primary/20 to-accent/20 rounded-full py-3 px-4 text-center hover:from-primary/30 hover:to-accent/30 transition-all duration-300 border border-primary/20">
+                <span className="text-foreground font-medium text-sm">ВКОНТАКТЕ</span>
+              </a>}
+            
+            {footerData?.telegram_channel && <a href={footerData.telegram_channel} target="_blank" rel="noopener noreferrer" className="bg-gradient-to-r from-primary/20 to-accent/20 rounded-full py-3 px-4 text-center hover:from-primary/30 hover:to-accent/30 transition-all duration-300 border border-primary/20">
+                <span className="text-foreground font-medium text-sm">TELEGRAM</span>
               </a>}
           </div>
         </div>

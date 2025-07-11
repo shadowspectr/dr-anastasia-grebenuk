@@ -7,6 +7,7 @@ import { StrictMode } from "react";
 import Index from "./pages/Index";
 import AdminPanel from "./pages/AdminPanel";
 import AllWorks from "./pages/AllWorks";
+import BookingPage from "./pages/BookingPage";
 
 const App = () => {
   // Move QueryClient creation inside component
@@ -30,6 +31,7 @@ const App = () => {
               <Route path="/" element={<Index />} />
               <Route path="/admin" element={<AdminPanel />} />
               <Route path="/works" element={<AllWorks />} />
+              <Route path="/booking" element={<BookingPage />} />
             </Routes>
           </BrowserRouter>
         </TooltipProvider>

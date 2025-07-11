@@ -13,6 +13,8 @@ interface FooterData {
   instagram: string;
   whatsapp: string;
   telegram: string;
+  vkontakte: string;
+  telegram_channel: string;
 }
 
 export const FooterSection = () => {
@@ -97,6 +99,26 @@ export const FooterSection = () => {
                 value={footerData?.telegram || ''}
                 onChange={(e) => updateFooterMutation.mutate({ telegram: e.target.value })}
                 placeholder="Ссылка на Telegram"
+                className="bg-white/10 border-white/20"
+              />
+            </div>
+            <div>
+              <Label htmlFor="vkontakte">ВКонтакте</Label>
+              <Input
+                id="vkontakte"
+                value={footerData?.vkontakte || ''}
+                onChange={(e) => updateFooterMutation.mutate({ vkontakte: e.target.value })}
+                placeholder="Ссылка на ВКонтакте"
+                className="bg-white/10 border-white/20"
+              />
+            </div>
+            <div>
+              <Label htmlFor="telegram_channel">Telegram канал</Label>
+              <Input
+                id="telegram_channel"
+                value={footerData?.telegram_channel || ''}
+                onChange={(e) => updateFooterMutation.mutate({ telegram_channel: e.target.value })}
+                placeholder="Ссылка на Telegram канал"
                 className="bg-white/10 border-white/20"
               />
             </div>

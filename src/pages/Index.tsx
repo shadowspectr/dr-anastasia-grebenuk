@@ -17,7 +17,7 @@ const Index = () => {
       const {
         data,
         error
-      } = await supabase.from('main_content').select('*').single();
+      } = await supabase.from('main_content').select('*').maybeSingle();
       if (error) throw error;
       return data;
     }
@@ -39,7 +39,7 @@ const Index = () => {
           
           {/* CTA Button */}
           <Button className="w-full max-w-sm bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-foreground font-medium py-6 rounded-full text-lg shadow-lg border-0" asChild>
-            <a href="https://t.me/dr_anastasia_grebenuk" target="_blank" rel="noopener noreferrer">
+            <a href="/booking">
               ЗАПИСАТЬСЯ
             </a>
           </Button>
