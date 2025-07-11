@@ -35,35 +35,37 @@ const TeamSection = () => {
           КОМАНДА<br/>СПЕЦИАЛИСТОВ
         </h2>
         
-        <div className="bg-gradient-to-br from-primary/20 to-accent/20 rounded-3xl p-6 relative hover:shadow-lg transition-all duration-300 hover:scale-[1.02]">
+        <div className="bg-gradient-to-br from-primary/20 to-accent/20 rounded-3xl p-8 relative hover:shadow-lg transition-all duration-300 hover:scale-[1.02]">
           {teamMembers.map((member, index) => (
             <div 
               key={member.id}
               className={`transition-opacity duration-300 ${
-                index === currentIndex ? 'opacity-100' : 'opacity-0 absolute top-6 left-6 right-6'
+                index === currentIndex ? 'opacity-100' : 'opacity-0 absolute top-8 left-8 right-8'
               }`}
             >
-              <div className="flex gap-4 mb-4">
-                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden bg-black flex-shrink-0 relative">
-                  <img 
-                    src={member.photo_url} 
-                    alt={member.name}
-                    className="w-full h-full object-cover object-center transition-transform duration-300 hover:scale-110"
-                    style={{ aspectRatio: '1/1' }}
-                  />
+              <div className="flex flex-col items-center text-center mb-6">
+                <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-3xl overflow-hidden bg-gradient-to-br from-primary/30 to-accent/30 p-1 mb-4 shadow-xl">
+                  <div className="w-full h-full rounded-3xl overflow-hidden bg-black relative">
+                    <img 
+                      src={member.photo_url} 
+                      alt={member.name}
+                      className="w-full h-full object-cover object-center transition-transform duration-300 hover:scale-110"
+                      style={{ aspectRatio: '1/1' }}
+                    />
+                  </div>
                 </div>
                 
-                <div className="flex-1">
-                  <h3 className="font-semibold text-foreground text-sm mb-1">
+                <div className="space-y-2">
+                  <h3 className="font-semibold text-foreground text-lg mb-1">
                     {member.name}
                   </h3>
-                  <p className="text-xs text-muted-foreground mb-2">
+                  <p className="text-sm text-primary font-medium">
                     {member.position}
                   </p>
                 </div>
               </div>
               
-              <p className="text-xs text-muted-foreground leading-relaxed">
+              <p className="text-sm text-muted-foreground leading-relaxed text-center max-w-sm mx-auto">
                 {member.description}
               </p>
             </div>

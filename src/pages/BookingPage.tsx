@@ -84,12 +84,8 @@ const BookingPage = () => {
 
   const submitBooking = useMutation({
     mutationFn: async (data: BookingFormData) => {
-      const response = await fetch('/api/send-booking', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+      const response = await supabase.functions.invoke('send-booking', {
+        body: {
           name: data.name,
           phone: data.phone,
           serviceType: data.isConsultation ? 'Консультация по телефону' : 'Запись на услугу',
@@ -97,14 +93,13 @@ const BookingPage = () => {
           serviceId: data.serviceId,
           date: format(data.date, 'dd.MM.yyyy'),
           time: data.time,
-        }),
+        }
       });
 
-      if (!response.ok) {
+      if (response.error) {
         throw new Error('Ошибка при отправке заявки');
       }
-
-      return response.json();
+      return response.data;
     },
     onSuccess: () => {
       toast({
