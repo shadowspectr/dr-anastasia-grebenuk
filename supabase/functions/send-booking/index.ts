@@ -10,7 +10,14 @@ const corsHeaders = {
 // Google Calendar API functions
 async function getGoogleAccessToken() {
   const serviceAccountEmail = Deno.env.get('GOOGLE_SERVICE_ACCOUNT_EMAIL')!
-  const privateKey = Deno.env.get('GOOGLE_PRIVATE_KEY')!.replace(/\\n/g, '\n')
+  const privateKeyRaw = Deno.env.get('GOOGLE_PRIVATE_KEY')!
+  
+  // Clean and format the private key properly
+  const privateKey = privateKeyRaw
+    .replace(/\\n/g, '\n')
+    .replace(/-----BEGIN PRIVATE KEY-----/, '')
+    .replace(/-----END PRIVATE KEY-----/, '')
+    .replace(/\s/g, '')
   
   const now = Math.floor(Date.now() / 1000)
   const expiry = now + 3600 // 1 hour
@@ -28,41 +35,61 @@ async function getGoogleAccessToken() {
     iat: now
   }
   
-  const headerBase64 = encode(JSON.stringify(header)).replace(/[=]/g, '').replace(/\+/g, '-').replace(/\//g, '_')
-  const payloadBase64 = encode(JSON.stringify(payload)).replace(/[=]/g, '').replace(/\+/g, '-').replace(/\//g, '_')
+  // Convert to base64url
+  const textEncoder = new TextEncoder()
+  const headerBase64 = btoa(JSON.stringify(header)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
+  const payloadBase64 = btoa(JSON.stringify(payload)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
   
   const message = `${headerBase64}.${payloadBase64}`
   
-  const key = await crypto.subtle.importKey(
-    'pkcs8',
-    new TextEncoder().encode(privateKey),
-    {
-      name: 'RSASSA-PKCS1-v1_5',
-      hash: 'SHA-256'
-    },
-    false,
-    ['sign']
-  )
-  
-  const signature = await crypto.subtle.sign(
-    'RSASSA-PKCS1-v1_5',
-    key,
-    new TextEncoder().encode(message)
-  )
-  
-  const signatureBase64 = encode(new Uint8Array(signature)).replace(/[=]/g, '').replace(/\+/g, '-').replace(/\//g, '_')
-  const jwt = `${message}.${signatureBase64}`
-  
-  const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded'
-    },
-    body: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${jwt}`
-  })
-  
-  const tokenData = await tokenResponse.json()
-  return tokenData.access_token
+  try {
+    // Decode the base64 private key
+    const keyData = Uint8Array.from(atob(privateKey), c => c.charCodeAt(0))
+    
+    const key = await crypto.subtle.importKey(
+      'pkcs8',
+      keyData,
+      {
+        name: 'RSASSA-PKCS1-v1_5',
+        hash: 'SHA-256'
+      },
+      false,
+      ['sign']
+    )
+    
+    const signature = await crypto.subtle.sign(
+      'RSASSA-PKCS1-v1_5',
+      key,
+      textEncoder.encode(message)
+    )
+    
+    const signatureBase64 = btoa(String.fromCharCode(...new Uint8Array(signature)))
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=/g, '')
+    
+    const jwt = `${message}.${signatureBase64}`
+    
+    const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${jwt}`
+    })
+    
+    const tokenData = await tokenResponse.json()
+    
+    if (!tokenData.access_token) {
+      console.error('Token response:', tokenData)
+      throw new Error(`Failed to get access token: ${tokenData.error || 'Unknown error'}`)
+    }
+    
+    return tokenData.access_token
+  } catch (error) {
+    console.error('Error in getGoogleAccessToken:', error)
+    throw error
+  }
 }
 
 async function createGoogleCalendarEvent(clientName: string, service: string, date: string, time: string) {
