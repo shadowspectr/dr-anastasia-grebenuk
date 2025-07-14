@@ -21,6 +21,7 @@ export type Database = {
           client_phone: string | null
           client_telegram_id: number | null
           created_at: string
+          google_event_id: string | null
           id: string
           reminded: boolean | null
           service_id: string | null
@@ -32,6 +33,7 @@ export type Database = {
           client_phone?: string | null
           client_telegram_id?: number | null
           created_at?: string
+          google_event_id?: string | null
           id?: string
           reminded?: boolean | null
           service_id?: string | null
@@ -43,6 +45,7 @@ export type Database = {
           client_phone?: string | null
           client_telegram_id?: number | null
           created_at?: string
+          google_event_id?: string | null
           id?: string
           reminded?: boolean | null
           service_id?: string | null

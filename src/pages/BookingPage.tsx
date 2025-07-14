@@ -54,6 +54,33 @@ const BookingPage = () => {
 
   const watchIsConsultation = form.watch("isConsultation");
   const watchCategoryId = form.watch("categoryId");
+  const watchDate = form.watch("date");
+
+  const [busySlots, setBusySlots] = useState<string[]>([]);
+
+  // Check availability when date changes
+  const { refetch: checkAvailability } = useQuery({
+    queryKey: ['check-availability', watchDate],
+    queryFn: async () => {
+      if (!watchDate) return { busySlots: [] };
+      
+      const response = await supabase.functions.invoke('check-availability', {
+        body: { date: format(watchDate, 'dd.MM.yyyy') }
+      });
+
+      if (response.error) {
+        console.error('Error checking availability:', response.error);
+        return { busySlots: [] };
+      }
+
+      setBusySlots(response.data?.busySlots || []);
+      return response.data;
+    },
+    enabled: !!watchDate
+  });
+
+  // Get available time slots (excluding busy ones)
+  const availableTimeSlots = timeSlots.filter(time => !busySlots.includes(time));
 
   // Fetch categories
   const { data: categories } = useQuery({
@@ -312,13 +339,26 @@ const BookingPage = () => {
                         <SelectValue placeholder="Выберите время" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent>
-                      {timeSlots.map((time) => (
-                        <SelectItem key={time} value={time}>
-                          {time}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
+                     <SelectContent>
+                       {availableTimeSlots.length > 0 ? (
+                         availableTimeSlots.map((time) => (
+                           <SelectItem key={time} value={time}>
+                             {time}
+                           </SelectItem>
+                         ))
+                       ) : (
+                         <SelectItem value="" disabled>
+                           {watchDate ? "Все время занято" : "Выберите дату"}
+                         </SelectItem>
+                       )}
+                       {busySlots.length > 0 && (
+                         <div className="px-2 py-1">
+                           <p className="text-xs text-muted-foreground">
+                             Занято: {busySlots.join(', ')}
+                           </p>
+                         </div>
+                       )}
+                     </SelectContent>
                   </Select>
                   <FormMessage />
                 </FormItem>
