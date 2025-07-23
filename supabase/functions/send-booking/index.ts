@@ -247,7 +247,7 @@ serve(async (req) => {
         client_phone: phone,
         service_id: serviceId || null,
         appointment_time: appointmentDateTime,
-        status: 'pending',
+        status: 'active',
         google_event_id: googleEventId
       })
 
