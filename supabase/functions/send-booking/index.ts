@@ -9,40 +9,41 @@ const corsHeaders = {
 
 // Google Calendar API functions
 async function getGoogleAccessToken() {
-  const serviceAccountEmail = Deno.env.get('GOOGLE_SERVICE_ACCOUNT_EMAIL')!
-  const privateKeyRaw = Deno.env.get('GOOGLE_PRIVATE_KEY')!
-  
-  // Clean and format the private key properly
-  const privateKey = privateKeyRaw
-    .replace(/\\n/g, '\n')
-    .replace(/-----BEGIN PRIVATE KEY-----/, '')
-    .replace(/-----END PRIVATE KEY-----/, '')
-    .replace(/\s/g, '')
-  
-  const now = Math.floor(Date.now() / 1000)
-  const expiry = now + 3600 // 1 hour
-  
-  const header = {
-    alg: 'RS256',
-    typ: 'JWT'
-  }
-  
-  const payload = {
-    iss: serviceAccountEmail,
-    scope: 'https://www.googleapis.com/auth/calendar',
-    aud: 'https://oauth2.googleapis.com/token',
-    exp: expiry,
-    iat: now
-  }
-  
-  // Convert to base64url
-  const textEncoder = new TextEncoder()
-  const headerBase64 = btoa(JSON.stringify(header)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
-  const payloadBase64 = btoa(JSON.stringify(payload)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
-  
-  const message = `${headerBase64}.${payloadBase64}`
-  
   try {
+    // Get credentials from environment variable (as JSON string)
+    const credentialsJson = Deno.env.get('GOOGLE_CREDENTIALS_JSON')!
+    const credentials = JSON.parse(credentialsJson)
+    
+    const now = Math.floor(Date.now() / 1000)
+    const expiry = now + 3600 // 1 hour
+    
+    const header = {
+      alg: 'RS256',
+      typ: 'JWT'
+    }
+    
+    const payload = {
+      iss: credentials.client_email,
+      scope: 'https://www.googleapis.com/auth/calendar',
+      aud: 'https://oauth2.googleapis.com/token',
+      exp: expiry,
+      iat: now
+    }
+    
+    // Convert to base64url
+    const textEncoder = new TextEncoder()
+    const headerBase64 = btoa(JSON.stringify(header)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
+    const payloadBase64 = btoa(JSON.stringify(payload)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
+    
+    const message = `${headerBase64}.${payloadBase64}`
+    
+    // Clean and format the private key properly
+    const privateKey = credentials.private_key
+      .replace(/\\n/g, '\n')
+      .replace(/-----BEGIN PRIVATE KEY-----/, '')
+      .replace(/-----END PRIVATE KEY-----/, '')
+      .replace(/\s+/g, '')
+    
     // Decode the base64 private key
     const keyData = Uint8Array.from(atob(privateKey), c => c.charCodeAt(0))
     
@@ -92,7 +93,7 @@ async function getGoogleAccessToken() {
   }
 }
 
-async function createGoogleCalendarEvent(clientName: string, service: string, date: string, time: string) {
+async function createGoogleCalendarEvent(clientName: string, service: string, date: string, time: string, clientPhone: string) {
   const accessToken = await getGoogleAccessToken()
   const calendarId = Deno.env.get('GOOGLE_CALENDAR_ID')!
   
@@ -101,9 +102,18 @@ async function createGoogleCalendarEvent(clientName: string, service: string, da
   const startDateTime = new Date(`${year}-${month}-${day}T${time}:00`)
   const endDateTime = new Date(startDateTime.getTime() + 60 * 60 * 1000) // 1 hour duration
   
+  // Format description with client details
+  const descriptionLines = [
+    `Запись для клиента: ${clientName}`,
+    `Услуга: ${service}`
+  ]
+  if (clientPhone) {
+    descriptionLines.push(`Телефон: ${clientPhone}`)
+  }
+  
   const event = {
-    summary: `Запись: ${clientName}`,
-    description: `Услуга: ${service}\nКлиент: ${clientName}`,
+    summary: `${service} - ${clientName}`,
+    description: descriptionLines.join('\n'),
     start: {
       dateTime: startDateTime.toISOString(),
       timeZone: 'Europe/Moscow'
@@ -111,6 +121,10 @@ async function createGoogleCalendarEvent(clientName: string, service: string, da
     end: {
       dateTime: endDateTime.toISOString(),
       timeZone: 'Europe/Moscow'
+    },
+    reminders: {
+      useDefault: false,
+      overrides: [{ method: 'popup', minutes: 1440 }] // 24 hours before
     }
   }
   
@@ -130,6 +144,7 @@ async function createGoogleCalendarEvent(clientName: string, service: string, da
   }
   
   const eventData = await response.json()
+  console.log(`Google Calendar event created: ${eventData.htmlLink}`)
   return eventData.id
 }
 
@@ -146,6 +161,18 @@ serve(async (req) => {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     const supabase = createClient(supabaseUrl, supabaseKey)
+
+    // Check if time slot is already booked in database
+    const appointmentDateTime = `${date.split('.').reverse().join('-')} ${time}:00`
+    const { data: existingAppointment } = await supabase
+      .from('appointments')
+      .select('id')
+      .eq('appointment_time', appointmentDateTime)
+      .single()
+
+    if (existingAppointment) {
+      throw new Error('Это время уже занято')
+    }
 
     let serviceInfo = serviceType;
     
@@ -205,7 +232,7 @@ serve(async (req) => {
     // Create Google Calendar event
     let googleEventId = null;
     try {
-      googleEventId = await createGoogleCalendarEvent(name, serviceInfo, date, time);
+      googleEventId = await createGoogleCalendarEvent(name, serviceInfo, date, time, phone);
       console.log('Google Calendar event created:', googleEventId);
     } catch (error) {
       console.error('Failed to create Google Calendar event:', error);
@@ -213,16 +240,21 @@ serve(async (req) => {
     }
 
     // Save appointment to database
-    await supabase
+    const { error: insertError } = await supabase
       .from('appointments')
       .insert({
         client_name: name,
         client_phone: phone,
         service_id: serviceId || null,
-        appointment_time: `${date} ${time}:00`,
+        appointment_time: appointmentDateTime,
         status: 'pending',
         google_event_id: googleEventId
       })
+
+    if (insertError) {
+      console.error('Database insert error:', insertError)
+      throw new Error('Ошибка при сохранении записи')
+    }
 
     return new Response(
       JSON.stringify({ success: true, message: 'Booking sent successfully' }),

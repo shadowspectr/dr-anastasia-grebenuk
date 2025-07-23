@@ -8,40 +8,41 @@ const corsHeaders = {
 
 // Google Calendar API functions
 async function getGoogleAccessToken() {
-  const serviceAccountEmail = Deno.env.get('GOOGLE_SERVICE_ACCOUNT_EMAIL')!
-  const privateKeyRaw = Deno.env.get('GOOGLE_PRIVATE_KEY')!
-  
-  // Clean and format the private key properly
-  const privateKey = privateKeyRaw
-    .replace(/\\n/g, '\n')
-    .replace(/-----BEGIN PRIVATE KEY-----/, '')
-    .replace(/-----END PRIVATE KEY-----/, '')
-    .replace(/\s/g, '')
-  
-  const now = Math.floor(Date.now() / 1000)
-  const expiry = now + 3600 // 1 hour
-  
-  const header = {
-    alg: 'RS256',
-    typ: 'JWT'
-  }
-  
-  const payload = {
-    iss: serviceAccountEmail,
-    scope: 'https://www.googleapis.com/auth/calendar',
-    aud: 'https://oauth2.googleapis.com/token',
-    exp: expiry,
-    iat: now
-  }
-  
-  // Convert to base64url
-  const textEncoder = new TextEncoder()
-  const headerBase64 = btoa(JSON.stringify(header)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
-  const payloadBase64 = btoa(JSON.stringify(payload)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
-  
-  const message = `${headerBase64}.${payloadBase64}`
-  
   try {
+    // Get credentials from environment variable (as JSON string)
+    const credentialsJson = Deno.env.get('GOOGLE_CREDENTIALS_JSON')!
+    const credentials = JSON.parse(credentialsJson)
+    
+    const now = Math.floor(Date.now() / 1000)
+    const expiry = now + 3600 // 1 hour
+    
+    const header = {
+      alg: 'RS256',
+      typ: 'JWT'
+    }
+    
+    const payload = {
+      iss: credentials.client_email,
+      scope: 'https://www.googleapis.com/auth/calendar',
+      aud: 'https://oauth2.googleapis.com/token',
+      exp: expiry,
+      iat: now
+    }
+    
+    // Convert to base64url
+    const textEncoder = new TextEncoder()
+    const headerBase64 = btoa(JSON.stringify(header)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
+    const payloadBase64 = btoa(JSON.stringify(payload)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
+    
+    const message = `${headerBase64}.${payloadBase64}`
+    
+    // Clean and format the private key properly
+    const privateKey = credentials.private_key
+      .replace(/\\n/g, '\n')
+      .replace(/-----BEGIN PRIVATE KEY-----/, '')
+      .replace(/-----END PRIVATE KEY-----/, '')
+      .replace(/\s+/g, '')
+    
     // Decode the base64 private key
     const keyData = Uint8Array.from(atob(privateKey), c => c.charCodeAt(0))
     
@@ -133,11 +134,17 @@ serve(async (req) => {
       throw new Error('Date is required')
     }
 
+    // Initialize Supabase client to check database appointments
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2')
+    const supabase = createClient(supabaseUrl, supabaseKey)
+
     // Get calendar events for the specified date
     const events = await getCalendarEvents(date)
     
-    // Extract busy time slots
-    const busySlots = events.map((event: any) => {
+    // Extract busy time slots from Google Calendar
+    const calendarBusySlots = events.map((event: any) => {
       if (event.start && event.start.dateTime) {
         const startTime = new Date(event.start.dateTime)
         const hours = startTime.getHours().toString().padStart(2, '0')
@@ -147,11 +154,37 @@ serve(async (req) => {
       return null
     }).filter(Boolean)
 
+    // Check database for appointments on this date
+    const [day, month, year] = date.split('.')
+    const dateForDb = `${year}-${month}-${day}`
+    
+    const { data: dbAppointments, error } = await supabase
+      .from('appointments')
+      .select('appointment_time')
+      .gte('appointment_time', `${dateForDb} 00:00:00`)
+      .lt('appointment_time', `${dateForDb} 23:59:59`)
+
+    if (error) {
+      console.error('Database error:', error)
+    }
+
+    // Extract busy time slots from database
+    const dbBusySlots = (dbAppointments || []).map((appointment: any) => {
+      const appointmentTime = new Date(appointment.appointment_time)
+      const hours = appointmentTime.getHours().toString().padStart(2, '0')
+      const minutes = appointmentTime.getMinutes().toString().padStart(2, '0')
+      return `${hours}:${minutes}`
+    })
+
+    // Combine both sources and remove duplicates
+    const allBusySlots = [...new Set([...calendarBusySlots, ...dbBusySlots])]
+
     return new Response(
       JSON.stringify({ 
         success: true, 
-        busySlots,
-        totalEvents: events.length 
+        busySlots: allBusySlots,
+        calendarEvents: events.length,
+        dbAppointments: (dbAppointments || []).length
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
