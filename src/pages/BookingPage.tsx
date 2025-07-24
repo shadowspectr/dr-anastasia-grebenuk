@@ -18,6 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { BookingMethodDialog } from "@/components/BookingMethodDialog";
+import { PrivacyPolicyCheckbox } from "@/components/PrivacyPolicyCheckbox";
 
 const bookingSchema = z.object({
   name: z.string().min(2, "Имя должно содержать минимум 2 символа"),
@@ -388,29 +389,7 @@ const BookingPage = () => {
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="privacyConsent"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel className="text-sm">
-                      Я согласен(а) на обработку персональных данных в соответствии с{" "}
-                      <span className="text-primary underline cursor-pointer">
-                        Политикой конфиденциальности
-                      </span>
-                    </FormLabel>
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <PrivacyPolicyCheckbox control={form.control} />
 
             <Button 
               type="submit" 

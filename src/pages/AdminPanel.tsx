@@ -9,6 +9,7 @@ import { TeamSection } from "@/components/admin/TeamSection";
 import { FAQSection } from "@/components/admin/FAQSection";
 import { FooterSection } from "@/components/admin/FooterSection";
 import { EducationSection } from "@/components/admin/EducationSection";
+import { PrivacyPolicySection } from "@/components/admin/PrivacyPolicySection";
 
 const AdminPanel = () => {
   return (
@@ -30,6 +31,7 @@ const AdminPanel = () => {
           <TabsTrigger value="faq">FAQ</TabsTrigger>
           <TabsTrigger value="education">Обучение</TabsTrigger>
           <TabsTrigger value="footer">Контакты</TabsTrigger>
+          <TabsTrigger value="privacy">Политика</TabsTrigger>
         </TabsList>
         <TabsContent value="logo" className="space-y-4">
           <LogoSection />
@@ -54,6 +56,9 @@ const AdminPanel = () => {
         </TabsContent>
         <TabsContent value="footer" className="space-y-4">
           <FooterSection />
+        </TabsContent>
+        <TabsContent value="privacy" className="space-y-4">
+          <PrivacyPolicySection />
         </TabsContent>
       </Tabs>
     </div>

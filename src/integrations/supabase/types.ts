@@ -249,6 +249,30 @@ export type Database = {
         }
         Relationships: []
       }
+      privacy_policy: {
+        Row: {
+          created_at: string
+          document_url: string
+          id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          document_url?: string
+          id?: string
+          title?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          document_url?: string
+          id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       service_categories: {
         Row: {
           created_at: string

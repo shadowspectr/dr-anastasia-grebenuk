@@ -21,12 +21,25 @@ const ContactsSection = () => {
         <div className="space-y-6">
           <div className="bg-muted/50 rounded-2xl px-4 py-3">
             <p className="text-sm text-foreground">
-              <span className="font-medium">Адрес клиники:</span> г. Ростов-на-Дону, Буденновский проспект, 8
+              <span className="font-medium">Адрес клиники:</span>{" "}
+              <a 
+                href="https://yandex.ru/maps/142/donetsk/house/prospekt_ilyicha_109/Z04YfgFhQUcDQFpifXxxc35nbA==/?ll=37.864529%2C48.002870&z=17"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:text-primary/80 transition-colors"
+              >
+                г. Донецк, пр. Ильича 109А
+              </a>
             </p>
           </div>
           
           <div className="text-center">
-            <p className="text-lg font-medium text-foreground mb-2">+7 (989) 541-12-88</p>
+            <a 
+              href="tel:+79493420216"
+              className="text-lg font-medium text-primary hover:text-primary/80 transition-colors mb-2 inline-block"
+            >
+              +7 949 342 0216
+            </a>
             
             <div className="bg-muted/50 rounded-2xl px-4 py-3 mb-6">
               <p className="text-sm text-foreground">
