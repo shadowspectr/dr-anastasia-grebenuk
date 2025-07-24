@@ -17,6 +17,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
+import { BookingMethodDialog } from "@/components/BookingMethodDialog";
 
 const bookingSchema = z.object({
   name: z.string().min(2, "Имя должно содержать минимум 2 символа"),
@@ -28,19 +29,23 @@ const bookingSchema = z.object({
     required_error: "Выберите дату",
   }),
   time: z.string().min(1, "Выберите время"),
+  privacyConsent: z.boolean().refine(val => val === true, {
+    message: "Необходимо согласие на обработку персональных данных"
+  }),
 });
 
 type BookingFormData = z.infer<typeof bookingSchema>;
 
 const timeSlots = [
-  "10:00", "10:30", "11:00", "11:30", "12:00", "12:30",
-  "13:00", "13:30", "14:00", "14:30", "15:00", "15:30",
-  "16:00", "16:30", "17:00", "17:30", "18:00", "18:30"
+  "09:00", "10:00", "11:00", "12:00", "13:00", "14:00",
+  "15:00", "16:00", "17:00", "18:00"
 ];
 
 const BookingPage = () => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showMethodDialog, setShowMethodDialog] = useState(false);
+  const [pendingFormData, setPendingFormData] = useState<BookingFormData | null>(null);
 
   const form = useForm<BookingFormData>({
     resolver: zodResolver(bookingSchema),
@@ -49,6 +54,7 @@ const BookingPage = () => {
       phone: "",
       isConsultation: false,
       time: "",
+      privacyConsent: false,
     },
   });
 
@@ -146,11 +152,28 @@ const BookingPage = () => {
   });
 
   const onSubmit = async (data: BookingFormData) => {
+    setPendingFormData(data);
+    setShowMethodDialog(true);
+  };
+
+  const handleMethodSelection = async (method: 'telegram' | 'website') => {
+    setShowMethodDialog(false);
+    
+    if (method === 'telegram') {
+      // Redirect to Telegram bot
+      window.open('https://t.me/your_bot_username', '_blank');
+      return;
+    }
+
+    // Continue with website booking
+    if (!pendingFormData) return;
+    
     setIsSubmitting(true);
     try {
-      await submitBooking.mutateAsync(data);
+      await submitBooking.mutateAsync(pendingFormData);
     } finally {
       setIsSubmitting(false);
+      setPendingFormData(null);
     }
   };
 
@@ -365,15 +388,45 @@ const BookingPage = () => {
               )}
             />
 
+            <FormField
+              control={form.control}
+              name="privacyConsent"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel className="text-sm">
+                      Я согласен(а) на обработку персональных данных в соответствии с{" "}
+                      <span className="text-primary underline cursor-pointer">
+                        Политикой конфиденциальности
+                      </span>
+                    </FormLabel>
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <Button 
               type="submit" 
               className="w-full bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-foreground font-medium py-6 rounded-full text-lg"
               disabled={isSubmitting}
             >
-              {isSubmitting ? "Отправка..." : "Отправить заявку"}
+              {isSubmitting ? "Отправка..." : "Записаться"}
             </Button>
           </form>
         </Form>
+
+        <BookingMethodDialog
+          open={showMethodDialog}
+          onOpenChange={setShowMethodDialog}
+          onSelectMethod={handleMethodSelection}
+        />
       </div>
     </div>
   );

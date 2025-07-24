@@ -97,10 +97,12 @@ async function createGoogleCalendarEvent(clientName: string, service: string, da
   const accessToken = await getGoogleAccessToken()
   const calendarId = Deno.env.get('GOOGLE_CALENDAR_ID')!
   
-  // Convert date and time to ISO format
+  // Convert date and time to ISO format with Moscow timezone
   const [day, month, year] = date.split('.')
-  const startDateTime = new Date(`${year}-${month}-${day}T${time}:00`)
-  const endDateTime = new Date(startDateTime.getTime() + 60 * 60 * 1000) // 1 hour duration
+  // Create date in Moscow timezone to avoid UTC conversion issues
+  const moscowDate = new Date(`${year}-${month}-${day}T${time}:00+03:00`)
+  const startDateTime = moscowDate
+  const endDateTime = new Date(moscowDate.getTime() + 60 * 60 * 1000) // 1 hour duration
   
   // Format description with client details
   const descriptionLines = [
