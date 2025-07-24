@@ -8,8 +8,12 @@ import { ServicesSection } from "@/components/ServicesSection";
 import { WorksSection } from "@/components/WorksSection";
 import { FAQSection } from "@/components/FAQSection";
 import { ContactsSection } from "@/components/ContactsSection";
+import { BookingMethodDialog } from "@/components/BookingMethodDialog";
+import { useState } from "react";
 
 const Index = () => {
+  const [showBookingDialog, setShowBookingDialog] = useState(false);
+  
   // Fetch main content from database
   const { data: mainContent } = useQuery({
     queryKey: ['mainContent'],
@@ -22,6 +26,15 @@ const Index = () => {
       return data;
     }
   });
+
+  const handleBookingMethodSelect = (method: 'telegram' | 'website') => {
+    setShowBookingDialog(false);
+    if (method === 'telegram') {
+      window.open('https://t.me/dr_anastasia_grebenuk_bot', '_blank');
+    } else {
+      window.location.href = '/booking';
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -46,12 +59,10 @@ const Index = () => {
           
           {/* CTA Button */}
           <Button 
-            className="w-full max-w-sm bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-foreground font-medium py-6 rounded-full text-lg shadow-lg border-0" 
-            asChild
+            className="w-full max-w-sm bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-foreground font-medium py-6 rounded-full text-lg shadow-lg border-0"
+            onClick={() => setShowBookingDialog(true)}
           >
-            <Link to="/booking">
-              ЗАПИСАТЬСЯ
-            </Link>
+            ЗАПИСАТЬСЯ
           </Button>
         </div>
       </section>
@@ -73,6 +84,13 @@ const Index = () => {
 
       {/* Contacts Section */}
       <ContactsSection />
+      
+      {/* Booking Method Dialog */}
+      <BookingMethodDialog
+        open={showBookingDialog}
+        onOpenChange={setShowBookingDialog}
+        onSelectMethod={handleBookingMethodSelect}
+      />
     </div>
   );
 };

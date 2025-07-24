@@ -44,12 +44,12 @@ const ContactsSection = () => {
                 <span className="text-foreground font-medium text-sm">WHATSAPP</span>
               </a>}
 
-            {footerData?.vkontakte && <a href={footerData.vkontakte} target="_blank" rel="noopener noreferrer" className="bg-gradient-to-r from-primary/20 to-accent/20 rounded-full py-3 px-4 text-center hover:from-primary/30 hover:to-accent/30 transition-all duration-300 border border-primary/20">
-                <span className="text-foreground font-medium text-sm">ВКОНТАКТЕ</span>
+            {footerData?.telegram && <a href={footerData.telegram} target="_blank" rel="noopener noreferrer" className="bg-gradient-to-r from-primary/20 to-accent/20 rounded-full py-3 px-4 text-center hover:from-primary/30 hover:to-accent/30 transition-all duration-300 border border-primary/20">
+                <span className="text-foreground font-medium text-sm">TELEGRAM</span>
               </a>}
             
-            {footerData?.telegram_channel && <a href={footerData.telegram_channel} target="_blank" rel="noopener noreferrer" className="bg-gradient-to-r from-primary/20 to-accent/20 rounded-full py-3 px-4 text-center hover:from-primary/30 hover:to-accent/30 transition-all duration-300 border border-primary/20">
-                <span className="text-foreground font-medium text-sm">TELEGRAM</span>
+            {footerData?.vkontakte && <a href={footerData.vkontakte} target="_blank" rel="noopener noreferrer" className="bg-gradient-to-r from-primary/20 to-accent/20 rounded-full py-3 px-4 text-center hover:from-primary/30 hover:to-accent/30 transition-all duration-300 border border-primary/20">
+                <span className="text-foreground font-medium text-sm">ВКОНТАКТЕ</span>
               </a>}
           </div>
         </div>
