@@ -51,7 +51,7 @@ const Index = () => {
           {/* Team Photo */}
           <div className="mb-8">
             <img 
-              src={mainContent?.main_photo_url || "/lovable-uploads/731c0a35-be6b-42db-8dfe-5c8ee32e6d65.png"} 
+              src={mainContent?.main_photo_url"}
               alt="Команда специалистов" 
               className="w-full max-w-md mx-auto rounded-3xl shadow-lg transition-all duration-300 hover:scale-105" 
             />
