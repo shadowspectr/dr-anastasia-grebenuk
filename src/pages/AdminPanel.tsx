@@ -10,8 +10,21 @@ import { FAQSection } from "@/components/admin/FAQSection";
 import { FooterSection } from "@/components/admin/FooterSection";
 import { EducationSection } from "@/components/admin/EducationSection";
 import { PrivacyPolicySection } from "@/components/admin/PrivacyPolicySection";
+import { useEffect } from "react";
 
 const AdminPanel = () => {
+  useEffect(() => {
+    // Блокируем индексацию админ панели
+    const robotsMeta = document.createElement('meta');
+    robotsMeta.name = 'robots';
+    robotsMeta.content = 'noindex, nofollow, noarchive, nosnippet';
+    document.head.appendChild(robotsMeta);
+
+    return () => {
+      document.head.removeChild(robotsMeta);
+    };
+  }, []);
+
   return (
     <div className="min-h-screen bg-[#121212] text-white p-4 md:p-8">
       <Link

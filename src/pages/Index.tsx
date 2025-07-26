@@ -9,6 +9,9 @@ import { WorksSection } from "@/components/WorksSection";
 import { FAQSection } from "@/components/FAQSection";
 import { ContactsSection } from "@/components/ContactsSection";
 import { BookingMethodDialog } from "@/components/BookingMethodDialog";
+import { SEOHead } from "@/components/SEOHead";
+import { YandexMetrika } from "@/components/YandexMetrika";
+import { StructuredData } from "@/components/StructuredData";
 import { useState } from "react";
 
 const Index = () => {
@@ -37,7 +40,19 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <>
+      <SEOHead 
+        title="Dr. Anastasia Grebenuk - Косметолог с медицинским образованием в Донецке"
+        description="Профессиональные косметологические услуги в Донецке: контурная пластика, биоревитализация, мезотерапия, чистка лица, пилинги. Врач с медицинским образованием."
+        keywords="косметолог Донецк, контурная пластика, биоревитализация, мезотерапия, чистка лица, пилинг, инъекции красоты, медицинская косметология"
+        url="https://cosmetolog-dn-ru.lovable.app/"
+      />
+      <YandexMetrika />
+      <StructuredData type="WebSite" />
+      <StructuredData type="MedicalBusiness" />
+      <StructuredData type="Service" />
+      
+      <div className="min-h-screen bg-background">
       {/* Hero Section */}
       <section className="py-8 px-4">
         <div className="max-w-lg mx-auto text-center">
@@ -91,7 +106,8 @@ const Index = () => {
         onOpenChange={setShowBookingDialog}
         onSelectMethod={handleBookingMethodSelect}
       />
-    </div>
+      </div>
+    </>
   );
 };
 

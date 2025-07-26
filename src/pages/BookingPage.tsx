@@ -19,6 +19,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useToast } from "@/hooks/use-toast";
 import { BookingMethodDialog } from "@/components/BookingMethodDialog";
 import { PrivacyPolicyCheckbox } from "@/components/PrivacyPolicyCheckbox";
+import { SEOHead } from "@/components/SEOHead";
+import { YandexMetrika } from "@/components/YandexMetrika";
 
 const bookingSchema = z.object({
   name: z.string().min(2, "Имя должно содержать минимум 2 символа"),
@@ -179,7 +181,16 @@ const BookingPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <>
+      <SEOHead 
+        title="Запись на приём - Dr. Anastasia Grebenuk | Косметолог в Донецке"
+        description="Записаться на консультацию к косметологу в Донецке. Контурная пластика, биоревитализация, мезотерапия. Удобная онлайн запись."
+        keywords="запись к косметологу Донецк, онлайн запись косметолог, консультация косметолога"
+        url="https://cosmetolog-dn-ru.lovable.app/booking"
+      />
+      <YandexMetrika />
+      
+      <div className="min-h-screen bg-background">
       <div className="max-w-md mx-auto px-4 py-8">
         <div className="mb-6">
           <Link to="/" className="inline-flex items-center text-foreground hover:text-primary transition-colors">
@@ -410,8 +421,9 @@ const BookingPage = () => {
           onOpenChange={setShowMethodDialog}
           onSelectMethod={handleMethodSelection}
         />
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

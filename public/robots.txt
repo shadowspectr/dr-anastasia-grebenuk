@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+
+# Исключаем админ панель из индексации
+Disallow: /admin/*
+
+Sitemap: https://cosmetolog-dn-ru.lovable.app/sitemap.xml

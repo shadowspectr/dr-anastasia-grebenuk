@@ -3,6 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { SEOHead } from "@/components/SEOHead";
+import { YandexMetrika } from "@/components/YandexMetrika";
 
 const AllWorks = () => {
   const navigate = useNavigate();
@@ -22,7 +24,16 @@ const AllWorks = () => {
   });
 
   return (
-    <div className="min-h-screen bg-background">
+    <>
+      <SEOHead 
+        title="Галерея работ - Dr. Anastasia Grebenuk | Косметолог в Донецке"
+        description="Примеры работ косметолога Dr. Anastasia Grebenuk: результаты контурной пластики, биоревитализации, мезотерапии в Донецке."
+        keywords="результаты косметологии Донецк, примеры работ косметолог, до и после процедур"
+        url="https://cosmetolog-dn-ru.lovable.app/all-works"
+      />
+      <YandexMetrika />
+      
+      <div className="min-h-screen bg-background">
       <div className="py-8 px-4">
         <div className="max-w-lg mx-auto">
           {/* Header */}
@@ -70,7 +81,8 @@ const AllWorks = () => {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 
