@@ -340,7 +340,11 @@ const BookingPage = () => {
                         mode="single"
                         selected={field.value}
                         onSelect={field.onChange}
-                        disabled={(date) => date < new Date()}
+                        disabled={(date) => {
+                          const day = date.getDay(); // 0 = Sunday, 1 = Monday, etc.
+                          const allowedDays = [2, 4, 5]; // Tuesday, Thursday, Friday
+                          return date < new Date() || !allowedDays.includes(day);
+                        }}
                         initialFocus
                         className={cn("p-3 pointer-events-auto")}
                       />
