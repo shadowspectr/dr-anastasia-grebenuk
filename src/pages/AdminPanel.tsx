@@ -10,6 +10,7 @@ import { FAQSection } from "@/components/admin/FAQSection";
 import { FooterSection } from "@/components/admin/FooterSection";
 import { EducationSection } from "@/components/admin/EducationSection";
 import { PrivacyPolicySection } from "@/components/admin/PrivacyPolicySection";
+import VacationSection from "@/components/admin/VacationSection";
 import { useEffect } from "react";
 
 const AdminPanel = () => {
@@ -44,6 +45,7 @@ const AdminPanel = () => {
           <TabsTrigger value="faq">FAQ</TabsTrigger>
           <TabsTrigger value="education">Обучение</TabsTrigger>
           <TabsTrigger value="footer">Контакты</TabsTrigger>
+          <TabsTrigger value="vacation">Отпуск</TabsTrigger>
           <TabsTrigger value="privacy">Политика</TabsTrigger>
         </TabsList>
         <TabsContent value="logo" className="space-y-4">
@@ -69,6 +71,9 @@ const AdminPanel = () => {
         </TabsContent>
         <TabsContent value="footer" className="space-y-4">
           <FooterSection />
+        </TabsContent>
+        <TabsContent value="vacation" className="space-y-4">
+          <VacationSection />
         </TabsContent>
         <TabsContent value="privacy" className="space-y-4">
           <PrivacyPolicySection />

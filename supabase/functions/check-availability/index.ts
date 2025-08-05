@@ -154,10 +154,44 @@ serve(async (req) => {
       return null
     }).filter(Boolean)
 
-    // Check database for appointments on this date
+    // Check if the date falls within any vacation period
     const [day, month, year] = date.split('.')
     const dateForDb = `${year}-${month}-${day}`
     
+    const { data: vacationPeriods, error: vacationError } = await supabase
+      .from('vacation_periods')
+      .select('start_date, end_date')
+      .lte('start_date', dateForDb)
+      .gte('end_date', dateForDb)
+      
+    if (vacationError) {
+      console.error('Vacation periods query error:', vacationError)
+    }
+    
+    // If there's a vacation period for this date, return all time slots as busy
+    if (vacationPeriods && vacationPeriods.length > 0) {
+      const allTimeSlots = [
+        "09:00", "10:00", "11:00", "12:00", "13:00", "14:00",
+        "15:00", "16:00", "17:00", "18:00"
+      ]
+      
+      return new Response(
+        JSON.stringify({ 
+          success: true,
+          busySlots: allTimeSlots,
+          calendarEvents: events.length,
+          dbAppointments: 0,
+          vacationBlocked: true,
+          message: "День заблокирован: отпуск"
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200,
+        }
+      )
+    }
+    
+    // Check database for appointments on this date
     const { data: dbAppointments, error } = await supabase
       .from('appointments')
       .select('appointment_time')
