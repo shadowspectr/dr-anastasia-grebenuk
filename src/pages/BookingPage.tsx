@@ -66,6 +66,7 @@ const BookingPage = () => {
   const watchDate = form.watch("date");
 
   const [busySlots, setBusySlots] = useState<string[]>([]);
+  const [vacationDates, setVacationDates] = useState<Date[]>([]);
 
   // Check availability when date changes
   const { refetch: checkAvailability } = useQuery({
@@ -116,6 +117,34 @@ const BookingPage = () => {
       return data;
     },
     enabled: !!watchCategoryId && !watchIsConsultation
+  });
+
+  // Fetch vacation periods to disable dates
+  const { data: vacationPeriods } = useQuery({
+    queryKey: ['vacation-periods'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('vacation_periods')
+        .select('start_date, end_date');
+      if (error) throw error;
+      
+      // Convert vacation periods to array of disabled dates
+      const disabledDates: Date[] = [];
+      data?.forEach(period => {
+        const startDate = new Date(period.start_date);
+        const endDate = new Date(period.end_date);
+        
+        // Add all dates in the range
+        const currentDate = new Date(startDate);
+        while (currentDate <= endDate) {
+          disabledDates.push(new Date(currentDate));
+          currentDate.setDate(currentDate.getDate() + 1);
+        }
+      });
+      
+      setVacationDates(disabledDates);
+      return data;
+    }
   });
 
   const submitBooking = useMutation({
@@ -354,7 +383,17 @@ const BookingPage = () => {
                         disabled={(date) => {
                           const day = date.getDay(); // 0 = Sunday, 1 = Monday, etc.
                           const allowedDays = [2, 4, 5]; // Tuesday, Thursday, Friday
-                          return date < new Date() || !allowedDays.includes(day);
+                          
+                          // Check if date is in the past
+                          if (date < new Date()) return true;
+                          
+                          // Check if day is not allowed (not Tuesday, Thursday, Friday)
+                          if (!allowedDays.includes(day)) return true;
+                          
+                          // Check if date is during vacation
+                          return vacationDates.some(vacationDate => 
+                            date.toDateString() === vacationDate.toDateString()
+                          );
                         }}
                         initialFocus
                         className={cn("p-3 pointer-events-auto")}
