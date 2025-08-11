@@ -10,68 +10,91 @@ export const MainPhotoSection = () => {
   const { toast } = useToast();
   const [mainPhoto, setMainPhoto] = useState("/lovable-uploads/3e533f6e-3c39-4db5-8fc0-7afaa4aeba30.png");
   const [isUploading, setIsUploading] = useState(false);
+  const [contentId, setContentId] = useState<string | null>(null);
 
-  const handlePhotoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+const handlePhotoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const file = event.target.files?.[0];
+  if (!file) return;
 
-    // Validate file type
-    const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml', 'image/webp', 'image/heic'];
-    if (!allowedTypes.includes(file.type)) {
-      toast({
-        title: "Ошибка",
-        description: "Поддерживаются только форматы: PNG, JPG, SVG, WebP, HEIC",
-        variant: "destructive",
-      });
-      return;
+  // Validate file type
+  const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml', 'image/webp', 'image/heic'];
+  if (!allowedTypes.includes(file.type)) {
+    toast({
+      title: "Ошибка",
+      description: "Поддерживаются только форматы: PNG, JPG, SVG, WebP, HEIC",
+      variant: "destructive",
+    });
+    return;
+  }
+
+  try {
+    setIsUploading(true);
+
+    // Upload to Supabase Storage with proper contentType
+    const fileExt = (file.name.split('.').pop() || '').toLowerCase();
+    const fileName = `main/main-photo-${crypto.randomUUID()}.${fileExt}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('gallery')
+      .upload(fileName, file, { contentType: file.type, cacheControl: '3600', upsert: false });
+
+    if (uploadError) throw uploadError;
+
+    // Get the public URL
+    const { data: { publicUrl } } = supabase.storage
+      .from('gallery')
+      .getPublicUrl(fileName);
+
+    setMainPhoto(publicUrl);
+
+    // Persist to database so the homepage (Index.tsx) picks it up
+    if (contentId) {
+      const { error: updateError } = await supabase
+        .from('main_content')
+        .update({ main_photo_url: publicUrl })
+        .eq('id', contentId);
+      if (updateError) throw updateError;
+    } else {
+      const { data: inserted, error: insertError } = await supabase
+        .from('main_content')
+        .insert({ main_photo_url: publicUrl })
+        .select('id, main_photo_url')
+        .single();
+      if (insertError) throw insertError;
+      setContentId(inserted.id);
     }
 
-    try {
-      setIsUploading(true);
+    toast({
+      title: "Фото загружено",
+      description: "Новое главное фото сохранено в базе и отображено на сайте",
+    });
+  } catch (error) {
+    console.error('Upload error:', error);
+    toast({
+      title: "Ошибка",
+      description: "Не удалось загрузить фото",
+      variant: "destructive",
+    });
+  } finally {
+    setIsUploading(false);
+  }
+};
 
-      // Upload to Supabase Storage
-      const fileExt = file.name.split('.').pop();
-      const fileName = `main-photo-${crypto.randomUUID()}.${fileExt}`;
-      
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('gallery')
-        .upload(fileName, file);
-
-      if (uploadError) throw uploadError;
-
-      // Get the public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('gallery')
-        .getPublicUrl(fileName);
-
-      setMainPhoto(publicUrl);
-      
-      // Save to localStorage for persistence
-      localStorage.setItem('adminMainPhoto', publicUrl);
-      
-      toast({
-        title: "Фото загружено",
-        description: "Новое главное фото успешно загружено",
-      });
-    } catch (error) {
-      console.error('Upload error:', error);
-      toast({
-        title: "Ошибка",
-        description: "Не удалось загрузить фото",
-        variant: "destructive",
-      });
-    } finally {
-      setIsUploading(false);
+// Load current photo from database on mount
+useEffect(() => {
+  let mounted = true;
+  (async () => {
+    const { data, error } = await supabase
+      .from('main_content')
+      .select('id, main_photo_url')
+      .maybeSingle();
+    if (!error && data && mounted) {
+      setContentId(data.id);
+      if (data.main_photo_url) setMainPhoto(data.main_photo_url);
     }
-  };
-
-  // Load saved photo on component mount
-  useEffect(() => {
-    const savedPhoto = localStorage.getItem('adminMainPhoto');
-    if (savedPhoto) {
-      setMainPhoto(savedPhoto);
-    }
-  }, []);
+  })();
+  return () => { mounted = false; };
+}, []);
 
   return (
     <Card className="bg-white/5 border-none">
