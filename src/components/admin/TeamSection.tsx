@@ -105,12 +105,32 @@ export const TeamSection = () => {
     try {
       setUploadingMemberId(memberId);
 
-      const fileExt = file.name.split('.').pop();
-      const fileName = `team-${memberId}-${crypto.randomUUID()}.${fileExt}`;
-      
+      // Validate file type and size
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml', 'image/heic'];
+      if (!allowedTypes.includes(file.type)) {
+        throw new Error(`Неподдерживаемый формат: ${file.type}. Разрешены JPG, PNG, WebP, SVG, HEIC.`);
+      }
+      const maxSizeMB = 15;
+      if (file.size > maxSizeMB * 1024 * 1024) {
+        throw new Error(`Файл слишком большой. Максимум ${maxSizeMB}MB.`);
+      }
+
+      // Normalize extension from MIME type to avoid uppercase/unknown extensions
+      const mimeToExt: Record<string, string> = {
+        'image/jpeg': 'jpg',
+        'image/png': 'png',
+        'image/webp': 'webp',
+        'image/svg+xml': 'svg',
+        'image/heic': 'heic',
+      };
+      const guessedExt = mimeToExt[file.type] || (file.name.split('.').pop() || '').toLowerCase();
+      const ext = guessedExt ? guessedExt.toLowerCase() : 'bin';
+
+      const fileName = `team/team-${memberId}-${crypto.randomUUID()}.${ext}`;
+
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('gallery')
-        .upload(fileName, file);
+        .upload(fileName, file, { contentType: file.type, cacheControl: '3600', upsert: false });
 
       if (uploadError) throw uploadError;
 
@@ -123,15 +143,15 @@ export const TeamSection = () => {
         field: 'photo_url',
         value: publicUrl
       });
-      
+
       toast({
         title: "Фото загружено",
         description: "Фото участника команды обновлено",
       });
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Ошибка",
-        description: "Не удалось загрузить фото",
+        description: error?.message ?? "Не удалось загрузить фото",
         variant: "destructive",
       });
     } finally {
@@ -175,7 +195,7 @@ export const TeamSection = () => {
                       type="file"
                       id={`photo-${member.id}`}
                       onChange={(e) => handlePhotoUpload(e, member.id)}
-                      accept="image/*"
+                      accept="image/png,image/jpeg,image/jpg,image/svg+xml,image/webp,image/heic"
                       className="absolute inset-0 opacity-0 cursor-pointer"
                       disabled={uploadingMemberId === member.id}
                     />
