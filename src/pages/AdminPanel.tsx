@@ -1,16 +1,12 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Menu } from "lucide-react";
-import { LogoSection } from "@/components/admin/LogoSection";
 import { AboutSection } from "@/components/admin/AboutSection";
 import { ServicesSection } from "@/components/admin/ServicesSection";
 import { GallerySection } from "@/components/admin/gallery/GallerySection";
 import { TeamSection } from "@/components/admin/TeamSection";
 import { FAQSection } from "@/components/admin/FAQSection";
 import { FooterSection } from "@/components/admin/FooterSection";
-import { EducationSection } from "@/components/admin/EducationSection";
-import { PrivacyPolicySection } from "@/components/admin/PrivacyPolicySection";
-import VacationSection from "@/components/admin/VacationSection";
 import { useEffect, useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -18,7 +14,7 @@ import { Button } from "@/components/ui/button";
 
 const AdminPanel = () => {
   const isMobile = useIsMobile();
-  const [activeTab, setActiveTab] = useState("logo");
+  const [activeTab, setActiveTab] = useState("about");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -34,16 +30,12 @@ const AdminPanel = () => {
   }, []);
 
   const tabs = [
-    { value: "logo", label: "Логотип" },
     { value: "about", label: "О нас" },
     { value: "services", label: "Услуги" },
     { value: "gallery", label: "Галерея" },
     { value: "team", label: "Команда" },
+    { value: "footer", label: "Социальные сети" },
     { value: "faq", label: "FAQ" },
-    { value: "education", label: "Обучение" },
-    { value: "footer", label: "Контакты" },
-    { value: "vacation", label: "Отпуск" },
-    { value: "privacy", label: "Политика" },
   ];
 
   const TabNavigation = ({ className = "" }: { className?: string }) => (
@@ -113,7 +105,7 @@ const AdminPanel = () => {
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
             {/* Desktop TabsList - Hidden on mobile */}
             {!isMobile && (
-              <TabsList className="bg-white/5 grid grid-cols-5 lg:grid-cols-10 gap-1 w-full">
+              <TabsList className="bg-white/5 grid grid-cols-6 gap-1 w-full">
                 {tabs.map((tab) => (
                   <TabsTrigger
                     key={tab.value}
@@ -125,9 +117,6 @@ const AdminPanel = () => {
                 ))}
               </TabsList>
             )}
-            <TabsContent value="logo" className="space-y-4">
-              <LogoSection />
-            </TabsContent>
             <TabsContent value="about" className="space-y-4">
               <AboutSection />
             </TabsContent>
@@ -140,20 +129,11 @@ const AdminPanel = () => {
             <TabsContent value="team" className="space-y-4">
               <TeamSection />
             </TabsContent>
-            <TabsContent value="faq" className="space-y-4">
-              <FAQSection />
-            </TabsContent>
-            <TabsContent value="education" className="space-y-4">
-              <EducationSection />
-            </TabsContent>
             <TabsContent value="footer" className="space-y-4">
               <FooterSection />
             </TabsContent>
-            <TabsContent value="vacation" className="space-y-4">
-              <VacationSection />
-            </TabsContent>
-            <TabsContent value="privacy" className="space-y-4">
-              <PrivacyPolicySection />
+            <TabsContent value="faq" className="space-y-4">
+              <FAQSection />
             </TabsContent>
           </Tabs>
         </div>

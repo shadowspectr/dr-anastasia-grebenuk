@@ -69,59 +69,85 @@ export const FooterSection = () => {
   return (
     <Card className="bg-white/5 border-none">
       <CardContent className="p-6">
-        <div className="space-y-4">
-          <h2 className="text-xl font-semibold mb-4">Редактирование футера</h2>
-          <div className="space-y-4">
+        <div className="space-y-6">
+          <h2 className="text-xl font-semibold mb-4">Социальные сети</h2>
+          <p className="text-sm text-white/60 mb-6">
+            Добавьте ссылки на ваши социальные сети. Они будут отображаться в разделе "Контакты" на сайте.
+          </p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="instagram">Instagram</Label>
+              <Label htmlFor="instagram" className="text-white">Instagram</Label>
               <Input
                 id="instagram"
                 value={footerData?.instagram || ''}
                 onChange={(e) => updateFooterMutation.mutate({ instagram: e.target.value })}
-                placeholder="Ссылка на Instagram"
-                className="bg-white/10 border-white/20"
+                placeholder="https://instagram.com/username"
+                className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
               />
             </div>
+            
             <div>
-              <Label htmlFor="whatsapp">WhatsApp</Label>
+              <Label htmlFor="whatsapp" className="text-white">WhatsApp</Label>
               <Input
                 id="whatsapp"
                 value={footerData?.whatsapp || ''}
                 onChange={(e) => updateFooterMutation.mutate({ whatsapp: e.target.value })}
-                placeholder="Номер WhatsApp"
-                className="bg-white/10 border-white/20"
+                placeholder="79491234567 (без + и пробелов)"
+                className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
               />
             </div>
+            
             <div>
-              <Label htmlFor="telegram">Telegram</Label>
+              <Label htmlFor="telegram" className="text-white">Telegram</Label>
               <Input
                 id="telegram"
                 value={footerData?.telegram || ''}
                 onChange={(e) => updateFooterMutation.mutate({ telegram: e.target.value })}
-                placeholder="Ссылка на Telegram"
-                className="bg-white/10 border-white/20"
+                placeholder="https://t.me/username"
+                className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
               />
             </div>
+            
             <div>
-              <Label htmlFor="vkontakte">ВКонтакте</Label>
+              <Label htmlFor="vkontakte" className="text-white">ВКонтакте</Label>
               <Input
                 id="vkontakte"
                 value={footerData?.vkontakte || ''}
                 onChange={(e) => updateFooterMutation.mutate({ vkontakte: e.target.value })}
-                placeholder="Ссылка на ВКонтакте"
-                className="bg-white/10 border-white/20"
+                placeholder="https://vk.com/username"
+                className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
               />
             </div>
-            <div>
-              <Label htmlFor="telegram_channel">Telegram канал</Label>
-              <Input
-                id="telegram_channel"
-                value={footerData?.telegram_channel || ''}
-                onChange={(e) => updateFooterMutation.mutate({ telegram_channel: e.target.value })}
-                placeholder="Ссылка на Telegram канал"
-                className="bg-white/10 border-white/20"
-              />
+          </div>
+          
+          <div className="bg-white/5 rounded-lg p-4 mt-6">
+            <h3 className="text-sm font-medium text-white mb-2">Предварительный просмотр:</h3>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              {footerData?.instagram && (
+                <div className="bg-primary/20 rounded-full py-2 px-3 text-center">
+                  <span className="text-white">INSTAGRAM</span>
+                </div>
+              )}
+              {footerData?.whatsapp && (
+                <div className="bg-primary/20 rounded-full py-2 px-3 text-center">
+                  <span className="text-white">WHATSAPP</span>
+                </div>
+              )}
+              {footerData?.telegram && (
+                <div className="bg-primary/20 rounded-full py-2 px-3 text-center">
+                  <span className="text-white">TELEGRAM</span>
+                </div>
+              )}
+              {footerData?.vkontakte && (
+                <div className="bg-primary/20 rounded-full py-2 px-3 text-center">
+                  <span className="text-white">ВКОНТАКТЕ</span>
+                </div>
+              )}
             </div>
+            {!footerData?.instagram && !footerData?.whatsapp && !footerData?.telegram && !footerData?.vkontakte && (
+              <p className="text-white/40 text-xs italic">Добавьте ссылки, чтобы увидеть предварительный просмотр</p>
+            )}
           </div>
         </div>
       </CardContent>
