@@ -9,7 +9,7 @@ const ContactsSection = () => {
       const {
         data,
         error
-      } = await supabase.from('footer_links').select('*').single();
+      } = await supabase.from('footer_links').select('*').maybeSingle();
       if (error) throw error;
       return data;
     }

@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface FooterData {
-  id: string;
+  id?: string;
   instagram: string;
   whatsapp: string;
   telegram: string;
@@ -28,22 +28,32 @@ export const FooterSection = () => {
       const { data, error } = await supabase
         .from('footer_links')
         .select('*')
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
-      return data as FooterData;
+      return data as FooterData | null;
     }
   });
 
   // Update footer mutation
   const updateFooterMutation = useMutation({
     mutationFn: async (updates: Partial<FooterData>) => {
-      const { error } = await supabase
-        .from('footer_links')
-        .update(updates)
-        .eq('id', footerData?.id);
+      // Если записи нет, создаем новую
+      if (!footerData) {
+        const { error } = await supabase
+          .from('footer_links')
+          .insert(updates);
+        
+        if (error) throw error;
+      } else {
+        // Если запись есть, обновляем её
+        const { error } = await supabase
+          .from('footer_links')
+          .update(updates)
+          .eq('id', footerData.id);
 
-      if (error) throw error;
+        if (error) throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['footer'] });
