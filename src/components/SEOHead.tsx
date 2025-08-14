@@ -10,9 +10,9 @@ interface SEOHeadProps {
 }
 
 export const SEOHead = ({ 
-  title = "Dr. Anastasia Grebenuk - Косметолог с медицинским образованием в Донецке",
-  description = "Профессиональные косметологические услуги в Донецке: контурная пластика, биоревитализация, мезотерапия, чистка лица, пилинги. Врач с медицинским образованием.",
-  keywords = "косметолог Донецк, контурная пластика, биоревитализация, мезотерапия, чистка лица, пилинг, инъекции красоты, медицинская косметология",
+  title = "Dr. Anastasia Grebenuk - Косметолог с медицинским образованием в Донецке и Макеевке",
+  description = "Профессиональные косметологические услуги в Донецке и Макеевке: контурная пластика, биоревитализация, мезотерапия, чистка лица, пилинги. Врач с медицинским образованием и 5-летним опытом.",
+  keywords = "косметолог Донецк, косметолог Макеевка, контурная пластика Донецк, биоревитализация Донецк, мезотерапия Макеевка, чистка лица Донецк, пилинг Макеевка, инъекции красоты, медицинская косметология ДНР",
   image = "/lovable-uploads/cd4553b0-6644-40cd-b20c-17dfe7481cc9.png",
   url = "https://cosmetolog-dn-ru.lovable.app",
   type = "website"
@@ -59,11 +59,25 @@ export const SEOHead = ({
     updateMetaTag('twitter:description', description);
     updateMetaTag('twitter:image', image);
     
+    // VKontakte мета-теги
+    updateMetaTag('vk:title', title);
+    updateMetaTag('vk:description', description);
+    updateMetaTag('vk:image', image);
+    updateMetaTag('vk:url', url);
+    
     // Дополнительные теги для локального бизнеса
     updateMetaTag('geo.region', 'UA-14');
-    updateMetaTag('geo.placename', 'Донецк');
+    updateMetaTag('geo.placename', 'Донецк, Макеевка');
     updateMetaTag('geo.position', '48.002870;37.864529');
     updateMetaTag('ICBM', '48.002870, 37.864529');
+    updateMetaTag('locality', 'Донецк');
+    updateMetaTag('region', 'Донецкая область');
+    updateMetaTag('country-name', 'Украина');
+    
+    // Дополнительные теги для поисковых систем
+    updateMetaTag('application-name', 'Dr. Anastasia Grebenuk - Косметология');
+    updateMetaTag('msapplication-TileColor', '#ffffff');
+    updateMetaTag('theme-color', '#ffffff');
     
     // Canonical URL
     let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement;
