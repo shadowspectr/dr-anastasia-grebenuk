@@ -7,6 +7,7 @@ import { GallerySection } from "@/components/admin/gallery/GallerySection";
 import { TeamSection } from "@/components/admin/TeamSection";
 import { FAQSection } from "@/components/admin/FAQSection";
 import { FooterSection } from "@/components/admin/FooterSection";
+import PromotionsSection from "@/components/admin/PromotionsSection";
 import { useEffect, useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -32,6 +33,7 @@ const AdminPanel = () => {
   const tabs = [
     { value: "about", label: "О нас" },
     { value: "services", label: "Услуги" },
+    { value: "promotions", label: "Акции" },
     { value: "gallery", label: "Галерея" },
     { value: "team", label: "Команда" },
     { value: "footer", label: "Социальные сети" },
@@ -105,7 +107,7 @@ const AdminPanel = () => {
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
             {/* Desktop TabsList - Hidden on mobile */}
             {!isMobile && (
-              <TabsList className="bg-white/5 grid grid-cols-6 gap-1 w-full">
+              <TabsList className="bg-white/5 grid grid-cols-7 gap-1 w-full">
                 {tabs.map((tab) => (
                   <TabsTrigger
                     key={tab.value}
@@ -122,6 +124,9 @@ const AdminPanel = () => {
             </TabsContent>
             <TabsContent value="services" className="space-y-4">
               <ServicesSection />
+            </TabsContent>
+            <TabsContent value="promotions" className="space-y-4">
+              <PromotionsSection />
             </TabsContent>
             <TabsContent value="gallery" className="space-y-4">
               <GallerySection />

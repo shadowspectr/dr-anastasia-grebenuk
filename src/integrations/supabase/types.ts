@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
@@ -270,6 +270,72 @@ export type Database = {
           id?: string
           title?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      promotions: {
+        Row: {
+          button_link: string
+          button_text: string
+          created_at: string
+          description: string
+          discount_text: string
+          id: string
+          image_url: string | null
+          is_active: boolean
+          meta_description: string | null
+          meta_title: string | null
+          og_image_url: string | null
+          priority: number
+          promo_code: string | null
+          show_timer: boolean | null
+          target_audience: string | null
+          title: string
+          updated_at: string
+          utm_campaign: string | null
+          valid_until: string | null
+        }
+        Insert: {
+          button_link?: string
+          button_text?: string
+          created_at?: string
+          description?: string
+          discount_text?: string
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          meta_description?: string | null
+          meta_title?: string | null
+          og_image_url?: string | null
+          priority?: number
+          promo_code?: string | null
+          show_timer?: boolean | null
+          target_audience?: string | null
+          title: string
+          updated_at?: string
+          utm_campaign?: string | null
+          valid_until?: string | null
+        }
+        Update: {
+          button_link?: string
+          button_text?: string
+          created_at?: string
+          description?: string
+          discount_text?: string
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          meta_description?: string | null
+          meta_title?: string | null
+          og_image_url?: string | null
+          priority?: number
+          promo_code?: string | null
+          show_timer?: boolean | null
+          target_audience?: string | null
+          title?: string
+          updated_at?: string
+          utm_campaign?: string | null
+          valid_until?: string | null
         }
         Relationships: []
       }

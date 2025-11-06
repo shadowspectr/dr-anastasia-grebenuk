@@ -8,6 +8,7 @@ import { ServicesSection } from "@/components/ServicesSection";
 import { WorksSection } from "@/components/WorksSection";
 import { FAQSection } from "@/components/FAQSection";
 import { ContactsSection } from "@/components/ContactsSection";
+import PromotionsSection from "@/components/PromotionsSection";
 import { BookingMethodDialog } from "@/components/BookingMethodDialog";
 import { SEOHead } from "@/components/SEOHead";
 import { YandexMetrika } from "@/components/YandexMetrika";
@@ -81,6 +82,9 @@ const Index = () => {
           </Button>
         </div>
       </section>
+
+      {/* Promotions Section */}
+      <PromotionsSection />
 
       {/* About Section */}
       <AboutSection />
