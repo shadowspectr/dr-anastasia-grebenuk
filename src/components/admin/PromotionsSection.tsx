@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, Plus, Trash2, Eye, EyeOff, Calendar, Tag, Target, Link as LinkIcon } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
+import { ImageUpload } from "@/components/admin/gallery/ImageUpload";
 
 interface Promotion {
   id: string;
@@ -36,6 +37,7 @@ const PromotionsSection = () => {
   const queryClient = useQueryClient();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isAdding, setIsAdding] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [formData, setFormData] = useState<Partial<Promotion>>({
     title: "",
     description: "",
@@ -133,6 +135,33 @@ const PromotionsSection = () => {
     }
   };
 
+  const handleImageUpload = async (file: File) => {
+    try {
+      setIsUploading(true);
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError, data } = await supabase.storage
+        .from('promotions')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('promotions')
+        .getPublicUrl(filePath);
+
+      setFormData({ ...formData, image_url: publicUrl });
+      toast({ title: "Изображение загружено" });
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      toast({ title: "Ошибка загрузки изображения", variant: "destructive" });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex justify-center py-8">
@@ -217,14 +246,13 @@ const PromotionsSection = () => {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label>URL изображения</Label>
-                <Input
-                  value={formData.image_url || ""}
-                  onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                  placeholder="https://..."
-                />
-              </div>
+              <ImageUpload
+                label="Изображение акции"
+                imageUrl={formData.image_url || ""}
+                isUploading={isUploading}
+                onUpload={handleImageUpload}
+                inputId="promo-image-upload"
+              />
             </div>
 
             <Separator />
