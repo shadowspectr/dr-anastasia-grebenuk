@@ -53,7 +53,7 @@ const PromotionsSection = () => {
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mx-auto justify-items-center">
+        <div className="flex flex-wrap justify-center gap-6">
           {promotions.map((promo) => (
             <PromotionCard key={promo.id} promotion={promo} />
           ))}
@@ -65,6 +65,7 @@ const PromotionsSection = () => {
 
 const PromotionCard = ({ promotion }: { promotion: Promotion }) => {
   const [timeLeft, setTimeLeft] = useState("");
+  const isExternalLink = promotion.button_link.startsWith('http://') || promotion.button_link.startsWith('https://');
 
   useEffect(() => {
     if (!promotion.show_timer || !promotion.valid_until) return;
@@ -99,7 +100,7 @@ const PromotionCard = ({ promotion }: { promotion: Promotion }) => {
   }, [promotion.show_timer, promotion.valid_until]);
 
   return (
-    <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 border-2 hover:border-primary/50">
+    <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 border-2 hover:border-primary/50 w-full max-w-sm">
       {promotion.image_url && (
         <div className="relative h-48 overflow-hidden">
           <img
@@ -149,11 +150,19 @@ const PromotionCard = ({ promotion }: { promotion: Promotion }) => {
           )}
         </div>
 
-        <Link to={promotion.button_link} className="block">
-          <Button className="w-full" size="lg">
-            {promotion.button_text}
-          </Button>
-        </Link>
+        {isExternalLink ? (
+          <a href={promotion.button_link} target="_blank" rel="noopener noreferrer" className="block">
+            <Button className="w-full" size="lg">
+              {promotion.button_text}
+            </Button>
+          </a>
+        ) : (
+          <Link to={promotion.button_link} className="block">
+            <Button className="w-full" size="lg">
+              {promotion.button_text}
+            </Button>
+          </Link>
+        )}
       </CardContent>
     </Card>
   );
