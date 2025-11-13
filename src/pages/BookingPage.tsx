@@ -74,16 +74,28 @@ const BookingPage = () => {
     queryFn: async () => {
       if (!watchDate) return { busySlots: [] };
       
+      const formattedDate = format(watchDate, 'dd.MM.yyyy');
+      console.log('Checking availability for date:', formattedDate);
+      
       const response = await supabase.functions.invoke('check-availability', {
-        body: { date: format(watchDate, 'dd.MM.yyyy') }
+        body: { date: formattedDate }
       });
+
+      console.log('Availability response:', response);
 
       if (response.error) {
         console.error('Error checking availability:', response.error);
+        toast({
+          title: "Ошибка проверки доступности",
+          description: "Не удалось проверить доступные слоты времени",
+          variant: "destructive"
+        });
         return { busySlots: [] };
       }
 
-      setBusySlots(response.data?.busySlots || []);
+      const busySlotsData = response.data?.busySlots || [];
+      console.log('Busy slots:', busySlotsData);
+      setBusySlots(busySlotsData);
       return response.data;
     },
     enabled: !!watchDate
