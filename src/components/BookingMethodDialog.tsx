@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Phone, Globe } from "lucide-react";
 
@@ -14,6 +14,7 @@ export const BookingMethodDialog = ({ open, onOpenChange, onSelectMethod }: Book
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-center">Выберите способ записи</DialogTitle>
+          <DialogDescription className="text-center text-muted-foreground">Выберите удобный способ оформления заявки</DialogDescription>
         </DialogHeader>
         
         <div className="space-y-4 py-4">
