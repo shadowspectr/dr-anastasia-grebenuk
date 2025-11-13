@@ -92,33 +92,55 @@ async function getGoogleAccessToken() {
   }
 }
 
-async function getCalendarEvents(date: string) {
+async function getCalendarFreeBusy(date: string) {
   const accessToken = await getGoogleAccessToken()
   const calendarId = Deno.env.get('GOOGLE_CALENDAR_ID')!
   
   // Convert date to ISO format for API call
   const [day, month, year] = date.split('.')
-  const startOfDay = new Date(`${year}-${month}-${day}T00:00:00`)
-  const endOfDay = new Date(`${year}-${month}-${day}T23:59:59`)
+  const startOfDay = new Date(`${year}-${month}-${day}T00:00:00Z`)
+  const endOfDay = new Date(`${year}-${month}-${day}T23:59:59Z`)
+  
+  const timeMin = startOfDay.toISOString()
+  const timeMax = endOfDay.toISOString()
+  
+  console.log(`[FreeBusy] Checking availability for ${date}`)
+  console.log(`[FreeBusy] timeMin: ${timeMin}`)
+  console.log(`[FreeBusy] timeMax: ${timeMax}`)
+  console.log(`[FreeBusy] calendarId: ${calendarId}`)
   
   const response = await fetch(
-    `https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events?timeMin=${startOfDay.toISOString()}&timeMax=${endOfDay.toISOString()}&singleEvents=true&orderBy=startTime`,
+    'https://www.googleapis.com/calendar/v3/freeBusy',
     {
+      method: 'POST',
       headers: {
         'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json'
-      }
+      },
+      body: JSON.stringify({
+        timeMin,
+        timeMax,
+        items: [{ id: calendarId }]
+      })
     }
   )
   
   if (!response.ok) {
     const errorData = await response.text()
-    console.error('Google Calendar API error:', errorData)
-    throw new Error('Failed to fetch calendar events')
+    console.error('[FreeBusy] Google Calendar API error:', errorData)
+    throw new Error('Failed to fetch calendar free/busy information')
   }
   
-  const eventsData = await response.json()
-  return eventsData.items || []
+  const freeBusyData = await response.json()
+  console.log('[FreeBusy] Response:', JSON.stringify(freeBusyData, null, 2))
+  
+  const calendarData = freeBusyData.calendars?.[calendarId]
+  if (!calendarData) {
+    console.warn('[FreeBusy] No calendar data found for calendar ID')
+    return []
+  }
+  
+  return calendarData.busy || []
 }
 
 serve(async (req) => {
@@ -140,10 +162,10 @@ serve(async (req) => {
     const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2')
     const supabase = createClient(supabaseUrl, supabaseKey)
 
-    // Get calendar events for the specified date
-    const events = await getCalendarEvents(date)
+    // Get calendar free/busy information for the specified date
+    const busyPeriods = await getCalendarFreeBusy(date)
     
-    // Build busy time slots from Google Calendar with hour-level granularity
+    // Build busy time slots from Google Calendar FreeBusy data
     const [dStr, mStr, yStr] = date.split('.')
     const y = parseInt(yStr, 10)
     const m = parseInt(mStr, 10) - 1
@@ -154,6 +176,8 @@ serve(async (req) => {
       "15:00", "16:00", "17:00", "18:00"
     ]
 
+    console.log(`[check-availability] Processing ${busyPeriods.length} busy periods for ${date}`)
+
     // Helper to create UTC date for the specific slot on the selected day
     const slotToUtcRange = (slot: string) => {
       const [hh] = slot.split(':').map((n) => parseInt(n, 10))
@@ -162,39 +186,36 @@ serve(async (req) => {
       return { start, end }
     }
 
-    // Normalize calendar events into start/end Date objects
-    const normalizedEvents = events.map((event: any) => {
-      if (event.start?.dateTime && event.end?.dateTime) {
+    // Convert FreeBusy periods to Date objects
+    const normalizedBusyPeriods = busyPeriods.map((period: any) => {
+      if (period.start && period.end) {
+        const startDate = new Date(period.start)
+        const endDate = new Date(period.end)
+        console.log(`[check-availability] Busy period: ${startDate.toISOString()} - ${endDate.toISOString()}`)
         return {
-          allDay: false,
-          start: new Date(event.start.dateTime),
-          end: new Date(event.end.dateTime)
+          start: startDate,
+          end: endDate
         }
       }
-      // All-day event blocks the whole day
-      if (event.start?.date && event.end?.date) {
-        return { allDay: true, start: null, end: null }
-      }
       return null
-    }).filter(Boolean) as Array<{ allDay: boolean; start: Date | null; end: Date | null }>
+    }).filter(Boolean) as Array<{ start: Date; end: Date }>
 
-    let calendarBusySlots: string[] = []
-
-    if (normalizedEvents.some(e => e.allDay)) {
-      // Any all-day event => mark every slot busy
-      calendarBusySlots = [...timeSlots]
-    } else {
-      // For each slot, if it overlaps any event, mark busy
-      calendarBusySlots = timeSlots.filter(slot => {
-        const { start: slotStart, end: slotEnd } = slotToUtcRange(slot)
-        return normalizedEvents.some(e => {
-          if (!e.start || !e.end) return false
-          return e.start < slotEnd && e.end > slotStart
-        })
+    // For each slot, check if it overlaps with any busy period
+    const calendarBusySlots = timeSlots.filter(slot => {
+      const { start: slotStart, end: slotEnd } = slotToUtcRange(slot)
+      const isOverlapping = normalizedBusyPeriods.some(period => {
+        // Check if busy period overlaps with this slot
+        return period.start < slotEnd && period.end > slotStart
       })
-    }
+      
+      if (isOverlapping) {
+        console.log(`[check-availability] Slot ${slot} is busy (overlaps with calendar event)`)
+      }
+      
+      return isOverlapping
+    })
 
-    console.log('[check-availability] date:', date, 'events:', events.length, 'calendarBusySlots:', calendarBusySlots)
+    console.log('[check-availability] Final calendar busy slots:', calendarBusySlots)
 
     // Check if the date falls within any vacation period
     const [day, month, year] = date.split('.')
@@ -221,7 +242,7 @@ serve(async (req) => {
         JSON.stringify({ 
           success: true,
           busySlots: allTimeSlots,
-          calendarEvents: events.length,
+          busyPeriods: 0,
           dbAppointments: 0,
           vacationBlocked: true,
           message: "День заблокирован: отпуск"
@@ -255,11 +276,17 @@ serve(async (req) => {
     // Combine both sources and remove duplicates
     const allBusySlots = [...new Set([...calendarBusySlots, ...dbBusySlots])]
 
+    console.log('[check-availability] Final result:', {
+      busySlots: allBusySlots,
+      busyPeriods: busyPeriods.length,
+      dbAppointments: (dbAppointments || []).length
+    })
+
     return new Response(
       JSON.stringify({ 
         success: true, 
         busySlots: allBusySlots,
-        calendarEvents: events.length,
+        busyPeriods: busyPeriods.length,
         dbAppointments: (dbAppointments || []).length
       }),
       {
