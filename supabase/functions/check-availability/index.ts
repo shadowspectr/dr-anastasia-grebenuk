@@ -143,16 +143,58 @@ serve(async (req) => {
     // Get calendar events for the specified date
     const events = await getCalendarEvents(date)
     
-    // Extract busy time slots from Google Calendar
-    const calendarBusySlots = events.map((event: any) => {
-      if (event.start && event.start.dateTime) {
-        const startTime = new Date(event.start.dateTime)
-        const hours = startTime.getHours().toString().padStart(2, '0')
-        const minutes = startTime.getMinutes().toString().padStart(2, '0')
-        return `${hours}:${minutes}`
+    // Build busy time slots from Google Calendar with hour-level granularity
+    const [dStr, mStr, yStr] = date.split('.')
+    const y = parseInt(yStr, 10)
+    const m = parseInt(mStr, 10) - 1
+    const d = parseInt(dStr, 10)
+
+    const timeSlots = [
+      "09:00", "10:00", "11:00", "12:00", "13:00", "14:00",
+      "15:00", "16:00", "17:00", "18:00"
+    ]
+
+    // Helper to create UTC date for the specific slot on the selected day
+    const slotToUtcRange = (slot: string) => {
+      const [hh] = slot.split(':').map((n) => parseInt(n, 10))
+      const start = new Date(Date.UTC(y, m, d, hh, 0, 0))
+      const end = new Date(Date.UTC(y, m, d, hh + 1, 0, 0))
+      return { start, end }
+    }
+
+    // Normalize calendar events into start/end Date objects
+    const normalizedEvents = events.map((event: any) => {
+      if (event.start?.dateTime && event.end?.dateTime) {
+        return {
+          allDay: false,
+          start: new Date(event.start.dateTime),
+          end: new Date(event.end.dateTime)
+        }
+      }
+      // All-day event blocks the whole day
+      if (event.start?.date && event.end?.date) {
+        return { allDay: true, start: null, end: null }
       }
       return null
-    }).filter(Boolean)
+    }).filter(Boolean) as Array<{ allDay: boolean; start: Date | null; end: Date | null }>
+
+    let calendarBusySlots: string[] = []
+
+    if (normalizedEvents.some(e => e.allDay)) {
+      // Any all-day event => mark every slot busy
+      calendarBusySlots = [...timeSlots]
+    } else {
+      // For each slot, if it overlaps any event, mark busy
+      calendarBusySlots = timeSlots.filter(slot => {
+        const { start: slotStart, end: slotEnd } = slotToUtcRange(slot)
+        return normalizedEvents.some(e => {
+          if (!e.start || !e.end) return false
+          return e.start < slotEnd && e.end > slotStart
+        })
+      })
+    }
+
+    console.log('[check-availability] date:', date, 'events:', events.length, 'calendarBusySlots:', calendarBusySlots)
 
     // Check if the date falls within any vacation period
     const [day, month, year] = date.split('.')
@@ -206,8 +248,8 @@ serve(async (req) => {
     const dbBusySlots = (dbAppointments || []).map((appointment: any) => {
       const appointmentTime = new Date(appointment.appointment_time)
       const hours = appointmentTime.getHours().toString().padStart(2, '0')
-      const minutes = appointmentTime.getMinutes().toString().padStart(2, '0')
-      return `${hours}:${minutes}`
+      // Round to the hour to align with available time slots
+      return `${hours}:00`
     })
 
     // Combine both sources and remove duplicates
