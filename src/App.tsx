@@ -5,10 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import AdminPanel from "./pages/AdminPanel";
-import AllWorks from "./pages/AllWorks";
-import BookingPage from "./pages/BookingPage";
 
-// Create QueryClient outside of component to avoid re-creation
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -28,8 +25,6 @@ const App = () => {
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/admin" element={<AdminPanel />} />
-            <Route path="/works" element={<AllWorks />} />
-            <Route path="/booking" element={<BookingPage />} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
