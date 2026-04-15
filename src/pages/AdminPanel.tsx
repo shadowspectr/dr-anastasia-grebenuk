@@ -1,147 +1,94 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Menu } from "lucide-react";
-import { AboutSection } from "@/components/admin/AboutSection";
-import { ServicesSection } from "@/components/admin/ServicesSection";
-import { GallerySection } from "@/components/admin/gallery/GallerySection";
-import { TeamSection } from "@/components/admin/TeamSection";
-import { FAQSection } from "@/components/admin/FAQSection";
-import { FooterSection } from "@/components/admin/FooterSection";
-import PromotionsSection from "@/components/admin/PromotionsSection";
-import { useEffect, useState } from "react";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
 
 const AdminPanel = () => {
-  const isMobile = useIsMobile();
-  const [activeTab, setActiveTab] = useState("about");
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { data: applications = [] } = useQuery({
+    queryKey: ["admin_applications"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("applications")
+        .select("*, courses(title)")
+        .order("created_at", { ascending: false });
+      return data ?? [];
+    },
+  });
 
-  useEffect(() => {
-    // Блокируем индексацию админ панели
-    const robotsMeta = document.createElement('meta');
-    robotsMeta.name = 'robots';
-    robotsMeta.content = 'noindex, nofollow, noarchive, nosnippet';
-    document.head.appendChild(robotsMeta);
-
-    return () => {
-      document.head.removeChild(robotsMeta);
-    };
-  }, []);
-
-  const tabs = [
-    { value: "about", label: "О нас" },
-    { value: "services", label: "Услуги" },
-    { value: "promotions", label: "Акции" },
-    { value: "gallery", label: "Галерея" },
-    { value: "team", label: "Команда" },
-    { value: "footer", label: "Социальные сети" },
-    { value: "faq", label: "FAQ" },
-  ];
-
-  const TabNavigation = ({ className = "" }: { className?: string }) => (
-    <div className={`space-y-2 ${className}`}>
-      {tabs.map((tab) => (
-        <button
-          key={tab.value}
-          onClick={() => {
-            setActiveTab(tab.value);
-            setMobileMenuOpen(false);
-          }}
-          className={`w-full text-left px-4 py-3 rounded-lg transition-colors ${
-            activeTab === tab.value
-              ? "bg-white/20 text-white"
-              : "text-white/60 hover:text-white hover:bg-white/10"
-          }`}
-        >
-          {tab.label}
-        </button>
-      ))}
-    </div>
-  );
+  const { data: courses = [] } = useQuery({
+    queryKey: ["admin_courses"],
+    queryFn: async () => {
+      const { data } = await supabase.from("courses").select("*").order("sort_order");
+      return data ?? [];
+    },
+  });
 
   return (
-    <div className="min-h-screen bg-[#121212] text-white">
-      {/* Header */}
-      <div className="sticky top-0 z-10 bg-[#121212] border-b border-white/10 p-4">
-        <div className="flex items-center justify-between">
-          <Link
-            to="/"
-            className="inline-flex items-center text-white/60 hover:text-white"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            <span className="hidden sm:inline">Вернуться на сайт</span>
-            <span className="sm:hidden">Назад</span>
+    <div className="min-h-screen bg-background p-4 md:p-8">
+      <div className="max-w-5xl mx-auto space-y-8">
+        <div className="flex items-center gap-3">
+          <Link to="/" className="text-muted-foreground hover:text-foreground">
+            <ArrowLeft className="h-5 w-5" />
           </Link>
-          
-          {isMobile && (
-            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="text-white">
-                  <Menu className="h-5 w-5" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="bg-[#121212] border-white/10">
-                <div className="pt-6">
-                  <h2 className="text-lg font-semibold text-white mb-4">Админ панель</h2>
-                  <TabNavigation />
-                </div>
-              </SheetContent>
-            </Sheet>
-          )}
+          <h1 className="text-2xl font-bold text-foreground">Панель управления</h1>
         </div>
-      </div>
 
-      <div className="flex">
-        {/* Desktop Sidebar */}
-        {!isMobile && (
-          <div className="w-64 bg-white/5 min-h-[calc(100vh-73px)] p-4 border-r border-white/10">
-            <h2 className="text-lg font-semibold text-white mb-4">Админ панель</h2>
-            <TabNavigation />
-          </div>
-        )}
-
-        {/* Main Content */}
-        <div className="flex-1 p-4 md:p-8">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-            {/* Desktop TabsList - Hidden on mobile */}
-            {!isMobile && (
-              <TabsList className="bg-white/5 grid grid-cols-7 gap-1 w-full">
-                {tabs.map((tab) => (
-                  <TabsTrigger
-                    key={tab.value}
-                    value={tab.value}
-                    className="text-xs px-2 py-2"
-                  >
-                    {tab.label}
-                  </TabsTrigger>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Заявки ({applications.length})</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {applications.length === 0 ? (
+              <p className="text-sm text-muted-foreground">Заявок пока нет</p>
+            ) : (
+              <div className="space-y-3">
+                {applications.map((app: any) => (
+                  <div key={app.id} className="flex items-center justify-between border-b border-border pb-2">
+                    <div>
+                      <p className="font-medium text-sm">{app.name}</p>
+                      <p className="text-xs text-muted-foreground">{app.phone}</p>
+                      {app.courses?.title && (
+                        <p className="text-xs text-primary">{app.courses.title}</p>
+                      )}
+                    </div>
+                    <div className="text-right">
+                      <Badge variant={app.status === "new" ? "default" : "secondary"}>
+                        {app.status}
+                      </Badge>
+                      <p className="text-[10px] text-muted-foreground mt-1">
+                        {new Date(app.created_at).toLocaleDateString("ru-RU")}
+                      </p>
+                    </div>
+                  </div>
                 ))}
-              </TabsList>
+              </div>
             )}
-            <TabsContent value="about" className="space-y-4">
-              <AboutSection />
-            </TabsContent>
-            <TabsContent value="services" className="space-y-4">
-              <ServicesSection />
-            </TabsContent>
-            <TabsContent value="promotions" className="space-y-4">
-              <PromotionsSection />
-            </TabsContent>
-            <TabsContent value="gallery" className="space-y-4">
-              <GallerySection />
-            </TabsContent>
-            <TabsContent value="team" className="space-y-4">
-              <TeamSection />
-            </TabsContent>
-            <TabsContent value="footer" className="space-y-4">
-              <FooterSection />
-            </TabsContent>
-            <TabsContent value="faq" className="space-y-4">
-              <FAQSection />
-            </TabsContent>
-          </Tabs>
-        </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Курсы ({courses.length})</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {courses.length === 0 ? (
+              <p className="text-sm text-muted-foreground">Курсов пока нет</p>
+            ) : (
+              <div className="space-y-2">
+                {courses.map((c) => (
+                  <div key={c.id} className="flex items-center justify-between border-b border-border pb-2">
+                    <span className="text-sm">{c.title}</span>
+                    <span className="text-sm text-primary font-medium">
+                      {c.price ? `${Number(c.price).toLocaleString("ru-RU")} ₽` : "—"}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

@@ -4,94 +4,75 @@
 
 @layer base {
   :root {
-    /* New elegant beige/cream color palette */
-    --background: 30 15% 95%;
-    --foreground: 30 8% 15%;
+    /* Powder pink / burgundy palette for cosmetology education */
+    --background: 15 33% 97%;
+    --foreground: 0 0% 20%;
 
-    --card: 30 20% 98%;
-    --card-foreground: 30 8% 15%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 20%;
 
-    --popover: 30 20% 98%;
-    --popover-foreground: 30 8% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 20%;
 
-    --primary: 30 25% 70%;
-    --primary-foreground: 30 8% 15%;
+    --primary: 345 38% 38%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 30 20% 90%;
-    --secondary-foreground: 30 8% 15%;
+    --secondary: 15 33% 93%;
+    --secondary-foreground: 0 0% 20%;
 
-    --muted: 30 15% 88%;
-    --muted-foreground: 30 8% 45%;
+    --muted: 15 20% 93%;
+    --muted-foreground: 0 0% 45%;
 
-    --accent: 35 30% 80%;
-    --accent-foreground: 30 8% 15%;
+    --accent: 15 45% 91%;
+    --accent-foreground: 345 38% 38%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 30 15% 85%;
-    --input: 30 15% 85%;
-    --ring: 30 25% 70%;
+    --border: 15 20% 88%;
+    --input: 15 20% 88%;
+    --ring: 345 38% 38%;
 
-    --radius: 1rem;
+    --radius: 0.75rem;
 
-    /* Elegant gradients and special colors */
-    --gradient-primary: linear-gradient(135deg, hsl(30 25% 70%), hsl(35 30% 80%));
-    --gradient-subtle: linear-gradient(180deg, hsl(30 20% 98%), hsl(30 15% 95%));
-    --shadow-elegant: 0 10px 30px -10px hsl(30 25% 70% / 0.3);
-    --text-elegant: 30 8% 25%;
-    --text-soft: 30 8% 45%;
-
-    /* Animation variables */
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-spring: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-
-    --sidebar-background: 30 20% 98%;
-    --sidebar-foreground: 30 8% 25%;
-    --sidebar-primary: 30 25% 70%;
-    --sidebar-primary-foreground: 30 8% 15%;
-    --sidebar-accent: 30 15% 88%;
-    --sidebar-accent-foreground: 30 8% 15%;
-    --sidebar-border: 30 15% 85%;
-    --sidebar-ring: 30 25% 70%;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 0 0% 20%;
+    --sidebar-primary: 345 38% 38%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 15 33% 93%;
+    --sidebar-accent-foreground: 0 0% 20%;
+    --sidebar-border: 15 20% 88%;
+    --sidebar-ring: 345 38% 38%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
+    --background: 0 0% 7%;
+    --foreground: 15 10% 90%;
+    --card: 0 0% 10%;
+    --card-foreground: 15 10% 90%;
+    --popover: 0 0% 10%;
+    --popover-foreground: 15 10% 90%;
+    --primary: 345 38% 50%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 15%;
+    --secondary-foreground: 15 10% 90%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 15 10% 60%;
+    --accent: 0 0% 15%;
+    --accent-foreground: 15 10% 90%;
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 18%;
+    --input: 0 0% 18%;
+    --ring: 345 38% 50%;
+    --sidebar-background: 0 0% 8%;
+    --sidebar-foreground: 15 10% 90%;
+    --sidebar-primary: 345 38% 50%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-accent: 0 0% 15%;
+    --sidebar-accent-foreground: 15 10% 90%;
+    --sidebar-border: 0 0% 18%;
+    --sidebar-ring: 345 38% 50%;
   }
 }
 
@@ -99,8 +80,14 @@
   * {
     @apply border-border;
   }
-
   body {
     @apply bg-background text-foreground;
+    font-family: 'Inter', sans-serif;
+  }
+}
+
+@layer utilities {
+  .section-padding {
+    @apply py-16 px-4 md:py-24 md:px-8;
   }
 }
